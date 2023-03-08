@@ -8,5 +8,6 @@ import { DisplayScreenComponent } from './components/display-screen/display-scre
 @NgModule({
 	declarations: [CalculatorComponent, NumberPadComponent, HistoryScreenComponent, DisplayScreenComponent],
 	imports: [CommonModule],
+	exports: [CalculatorComponent, NumberPadComponent, HistoryScreenComponent, DisplayScreenComponent],
 })
 export class CalculatorModule {}

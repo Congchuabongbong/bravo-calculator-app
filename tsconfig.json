@@ -3,6 +3,9 @@
 	"compileOnSave": false,
 	"compilerOptions": {
 		"baseUrl": "./",
+		"paths": {
+			"bravo-calculator": ["dist/bravo-calculator/bravo-calculator", "dist/bravo-calculator"]
+		},
 		"outDir": "./dist/out-tsc",
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,

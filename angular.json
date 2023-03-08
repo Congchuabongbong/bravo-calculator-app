@@ -112,6 +112,46 @@
 					}
 				}
 			}
+		},
+		"bravo-calculator": {
+			"projectType": "library",
+			"root": "projects/bravo-calculator",
+			"sourceRoot": "projects/bravo-calculator/src",
+			"prefix": "lib",
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:ng-packagr",
+					"options": {
+						"tsConfig": "projects/bravo-calculator/tsconfig.lib.json",
+						"project": "projects/bravo-calculator/ng-package.json"
+					},
+					"configurations": {
+						"production": {
+							"tsConfig": "projects/bravo-calculator/tsconfig.lib.prod.json"
+						}
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "projects/bravo-calculator/src/test.ts",
+						"tsConfig": "projects/bravo-calculator/tsconfig.spec.json",
+						"karmaConfig": "projects/bravo-calculator/karma.conf.js"
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"projects/bravo-calculator/tsconfig.lib.json",
+							"projects/bravo-calculator/tsconfig.spec.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
 		}
 	},
 	"defaultProject": "bravo-calculator-app"

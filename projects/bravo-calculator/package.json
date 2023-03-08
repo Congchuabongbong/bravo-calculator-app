@@ -1,0 +1,11 @@
+{
+	"name": "ng-bravo-calculator",
+	"version": "0.0.4",
+	"peerDependencies": {
+		"@angular/common": "*",
+		"@angular/core": "*"
+	},
+	"dependencies": {
+		"tslib": "^2.0.0"
+	}
+}

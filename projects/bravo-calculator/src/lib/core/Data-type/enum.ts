@@ -5,6 +5,7 @@ export enum EDataInputType {
 }
 
 export enum EOperatorType {
+	Add = 'Add',
 	Subtract = 'Subtract',
 	Multiple = 'Multiple',
 	Divide = 'Divide',

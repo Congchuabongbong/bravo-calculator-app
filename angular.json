@@ -142,13 +142,8 @@
 				"lint": {
 					"builder": "@angular-devkit/build-angular:tslint",
 					"options": {
-						"tsConfig": [
-							"projects/bravo-calculator/tsconfig.lib.json",
-							"projects/bravo-calculator/tsconfig.spec.json"
-						],
-						"exclude": [
-							"**/node_modules/**"
-						]
+						"tsConfig": ["projects/bravo-calculator/tsconfig.lib.json", "projects/bravo-calculator/tsconfig.spec.json"],
+						"exclude": ["**/node_modules/**"]
 					}
 				}
 			}

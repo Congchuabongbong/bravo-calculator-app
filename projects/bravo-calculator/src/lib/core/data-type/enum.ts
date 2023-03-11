@@ -11,3 +11,16 @@ export enum EOperatorType {
 	Absolute = 'Absolute',
 	Equals = 'Equals',
 }
+
+export enum EOperatorString {
+	Addition = ' + ',
+	Subtraction = ' - ',
+	Multiplication = ' x ',
+	Division = ' ÷ ',
+}
+
+export enum EInputAction {
+	Type,
+	Select,
+	Click,
+}

@@ -7,3 +7,4 @@ export * from './backSpace.command.class';
 export * from './absolute.command.class';
 export * from './decimal.command.class';
 export * from './clear.command.class';
+export * from './equal.command.class';

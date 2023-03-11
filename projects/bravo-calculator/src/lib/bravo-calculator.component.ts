@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Store } from './core/redux/store.service';
-import { ReducerService } from './core/redux/reducers.service';
-import { CalculatorReducer } from './core/redux/calculatorReduce';
-import { Observable } from 'rxjs';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { CalculatorPayload, CalculatorState } from './core/data-type/type.interface';
+import { CalculatorAction, CalculatorPayload, ICalculatorState } from './core/data-type/type';
+import { CalculatorReducer } from './core/redux/calculatorReduce';
+import { ReducerService } from './core/redux/reducers.service';
+import { Store } from './core/redux/store.service';
+import { EInputAction } from './core/data-type/enum';
 
 @Component({
 	selector: 'lib-bravo-calculator',
@@ -13,10 +13,18 @@ import { CalculatorPayload, CalculatorState } from './core/data-type/type.interf
 	styles: [],
 })
 export class BravoCalculatorComponent implements OnInit {
-	public result: Observable<number> = this._calCulatorStore.selectProp('result');
-	constructor(public _calCulatorStore: Store<CalculatorState, CalculatorPayload>, private _reducerService: ReducerService<CalculatorState, CalculatorPayload>, private _calculatorInvoker: CalculatorInvoker) {
+	constructor(public _calCulatorStore: Store<ICalculatorState, CalculatorPayload>, private _reducerService: ReducerService<ICalculatorState, CalculatorAction>, private _calculatorInvoker: CalculatorInvoker) {
 		this._reducerService.register(new CalculatorReducer());
 	}
 
-	ngOnInit(): void {}
+	ngOnInit(): void {
+		this._calculatorInvoker.add([1, 2, 4, 5, 6], EInputAction.Select);
+		this._calculatorInvoker.add([1, 2, 4, 5, 6], EInputAction.Select);
+		this._calculatorInvoker.endCalculation();
+		this._calculatorInvoker.add(12);
+		this._calculatorInvoker.add([1, 2, 4, 5, 6], EInputAction.Select);
+		this._calculatorInvoker.endCalculation();
+
+		console.log(this._calculatorInvoker.calculationHistories);
+	}
 }

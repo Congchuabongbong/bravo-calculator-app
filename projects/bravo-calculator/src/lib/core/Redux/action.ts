@@ -1,6 +1,6 @@
-import { EOperatorType } from '../data-type/type.enum';
-import { CalculatorPayload } from '../data-type/type.interface';
+import { EOperatorType, EInputAction } from '../data-type/enum';
+import { CalculatorAction, CalculatorPayload } from '../data-type/type';
 
-export function creatorAction(type: EOperatorType, payload: CalculatorPayload) {
-	return { type, payload };
+export function creatorAction(type: EOperatorType, payload: CalculatorPayload, inputType: EInputAction = EInputAction.Click): CalculatorAction {
+	return { type, payload, inputType };
 }

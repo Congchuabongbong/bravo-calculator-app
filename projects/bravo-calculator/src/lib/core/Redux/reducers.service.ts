@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Reducer } from '../data-type/type.interface';
-
+import { IReducer } from '../data-type/type';
 
 @Injectable()
 export class ReducerService<S, A> {
-	private reducers: Array<Reducer<S, A>> = [];
+	private reducers: Array<IReducer<S, A>> = [];
 
-	register (reducer: Reducer<S, A>) {
-		this.reducers.push(reducer);
+	register(IReducer: IReducer<S, A>) {
+		this.reducers.push(IReducer);
 	}
 
-	reduce (state: S, payload: A): S {
-		return this.reducers.reduce((currentState, reducer) => reducer.reduce(currentState, payload), state);
+	reduce(state: S, payload: A): S {
+		return this.reducers.reduce((currentState, IReducer) => IReducer.reduce(currentState, payload), state);
 	}
 }

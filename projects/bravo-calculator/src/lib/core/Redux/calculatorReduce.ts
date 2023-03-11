@@ -1,11 +1,14 @@
-import { EOperatorType } from '../data-type/type.enum';
-import { CalculatorPayload, CalculatorState, Reducer } from '../data-type/type.interface';
+import { initialStateCalculator } from '../../init-app/initial-state';
+import { EOperatorType } from '../data-type/enum';
+import { CalculatorAction, ICalculatorState, IReducer } from '../data-type/type';
 
-export class CalculatorReducer implements Reducer<CalculatorState, CalculatorPayload> {
-	public reduce(state: CalculatorState, action: CalculatorPayload): CalculatorState {
+//**update state for store here
+//TODO: handle update state for store app base on the action
+export class CalculatorReducer implements IReducer<ICalculatorState, CalculatorAction> {
+	public reduce(state: ICalculatorState = initialStateCalculator, action: CalculatorAction): ICalculatorState {
 		switch (action.type) {
 			case EOperatorType.Add:
-				const newState: CalculatorState = {
+				const newState: ICalculatorState = {
 					...state,
 					...action,
 				};

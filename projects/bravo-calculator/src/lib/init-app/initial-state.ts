@@ -1,14 +1,12 @@
 import { CalculatorReceiver } from '../core/command/receiver';
-import { CalculatorState } from '../core/data-type/type.interface';
+import { ICalculatorState } from '../core/data-type/type';
 
-export const initialStateCalculator: CalculatorState = {
-	initValue: 0,
-	currentValue: 0,
-	result: 100,
+export const initialStateCalculator: ICalculatorState = {
+	displayValue: 0,
+	prevValue: 0,
 	calculationHistories: [],
+	currentOperationAsString: '',
 	isReset: false,
-	isInteract: false,
-	isEndCalculate: false,
 };
 
 export const calculatorReceiver = new CalculatorReceiver();

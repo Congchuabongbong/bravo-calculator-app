@@ -5,6 +5,7 @@ import { CalculatorAction, CalculatorPayload, ICalculatorState, ICommand } from 
 import { Store } from '../redux/store.service';
 import { AddCommand } from './concrete-command';
 import { CalculatorReceiver } from './receiver';
+import { DivideCommand } from './concrete-command/divide.command.class';
 
 @Injectable()
 export class CalculatorInvoker {
@@ -14,17 +15,23 @@ export class CalculatorInvoker {
 	private _stringCommandHistory: string[] = [];
 	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
 
-	public add(operands: number[] | number, inputType: EInputAction = EInputAction.Click) {
+	public add(operands: number[] | number = 0, inputType: EInputAction = EInputAction.Click) {
 		const command = new AddCommand(this._receiver, { inputType, operands });
 		this._executeCommand(command, EOperatorType.Add);
 	}
+
+	public divide(operands: number[] | number = 0, inputType: EInputAction = EInputAction.Click) {
+		const command = new DivideCommand(this._receiver, { inputType, operands });
+		this._executeCommand(command, EOperatorType.Divide);
+	}
 	public endCalculation() {
 		let calculationHistory = this._receiver.endCalculation();
-		if (this.calculationHistories.length < 5) this.calculationHistories.push(calculationHistory);
-		else {
+		if (this.calculationHistories.length < 5 && calculationHistory.length > 0) this.calculationHistories.push(calculationHistory);
+		else if (this.calculationHistories.length > 5) {
 			this.calculationHistories.shift();
 			this.calculationHistories.push(calculationHistory);
 		}
+		console.log(this.calculationHistories);
 	}
 
 	//execute command end dispatch update state into store!
@@ -34,18 +41,13 @@ export class CalculatorInvoker {
 		//dispatch store update
 	}
 
-	public get currentValue(): number {
-		return this._receiver.currentValue;
-	}
-
 	public get result(): number {
 		return this._receiver.result;
 	}
 
 	private creatorPayload(): CalculatorPayload {
 		const payload: Partial<CalculatorPayload> = {};
-		payload.currentValue = this.currentValue;
-		payload.result = this.currentValue;
+		payload.result = this.result;
 		payload.calculationHistories = this._stringCommandHistory;
 		return payload as CalculatorPayload;
 	}

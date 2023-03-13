@@ -32,5 +32,4 @@ export interface ICalculatorState {
 export type CalculatorPayload = {
 	calculationHistories: string[]; // This is optional as it's not used in all actions
 	result: number;
-	currentValue: number;
 };

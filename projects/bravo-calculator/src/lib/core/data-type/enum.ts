@@ -19,6 +19,13 @@ export enum EOperatorString {
 	Division = ' ÷ ',
 }
 
+export enum EOperatorEVal {
+	Addition = ' + ',
+	Subtraction = ' - ',
+	Multiplication = ' * ',
+	Division = ' / ',
+}
+
 export enum EInputAction {
 	Type,
 	Select,

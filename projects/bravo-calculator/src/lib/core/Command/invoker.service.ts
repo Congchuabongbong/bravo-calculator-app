@@ -1,38 +1,51 @@
 import { Inject, Injectable } from '@angular/core';
 import { RECEIVER_TOKEN } from '../../init-app/token';
-import { EInputAction, EOperatorString, EOperatorType } from '../data-type/enum';
+import { EOperatorType } from '../data-type/enum';
 import { CalculatorAction, CalculatorPayload, ICalculatorState, ICommand } from '../data-type/type';
 import { Store } from '../redux/store.service';
 import { AddCommand } from './concrete-command';
-import { CalculatorReceiver } from './receiver';
 import { DivideCommand } from './concrete-command/divide.command.class';
+import { CalculatorReceiver } from './receiver';
+import { SubtractCommand } from './concrete-command/subtract.command.class';
+import { MultiplyCommand } from './concrete-command/multiply.command.class';
 
 @Injectable()
 export class CalculatorInvoker {
 	private _commandHistory: ICommand[] = [];
-	public calculationHistories: string[] = [];
 	private _currentIndex: number = -1;
+	public calculationHistories: string[] = [];
 	private _stringCommandHistory: string[] = [];
-	public isAllowSwitchOperator!: boolean; // khi nào được được switchOperator => Phải có một cờ cho phép
+
 	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
 
-	public add(operands: number[] | number = 0, inputType: EInputAction = EInputAction.Click) {
-		const command = new AddCommand(this._receiver, { inputType, operands });
+	public addAction(operands: number[] | number = 0) {
+		const command = new AddCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Add);
 	}
 
-	public divide(operands: number[] | number = 0, inputType: EInputAction = EInputAction.Click) {
-		const command = new DivideCommand(this._receiver, { inputType, operands });
+	public subtractAction(operands: number | number = 0) {
+		const command = new SubtractCommand(this._receiver, { operands });
+		this._executeCommand(command, EOperatorType.Subtract);
+	}
+
+	public multiplyAction(operands: number | number = 0) {
+		const command = new MultiplyCommand(this._receiver, { operands });
+		this._executeCommand(command, EOperatorType.Multiple);
+	}
+
+	public divideAction(operands: number[] | number = 0) {
+		const command = new DivideCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Divide);
 	}
-	public endCalculation() {
-		let calculationHistory = this._receiver.endCalculation();
+
+	public endCalculationAction() {
+		//TODO: handle last input when click endCalculator
+		let calculationHistory = this._receiver.handleEndCalculation();
 		if (this.calculationHistories.length < 5 && calculationHistory.length > 0) this.calculationHistories.push(calculationHistory);
 		else if (this.calculationHistories.length > 5) {
 			this.calculationHistories.shift();
 			this.calculationHistories.push(calculationHistory);
 		}
-		console.log(this.calculationHistories);
 	}
 
 	//execute command end dispatch update state into store!
@@ -44,15 +57,11 @@ export class CalculatorInvoker {
 
 	//!!test
 	getCurrentExpression() {
-		return this._receiver._expressionBuilder;
+		return this._receiver.expressionStringBuilder;
 	}
 
-	setCurrentOperator(operator: EOperatorString) {
-		this._receiver.setCurrentOperator(operator);
-	}
-
-	switchOperator() {
-		this._receiver.switchOperator();
+	public setIsNexOperator(flag: boolean) {
+		this._receiver.setIsNexOperator(flag);
 	}
 
 	public get result(): number {

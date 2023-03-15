@@ -9,6 +9,6 @@ export class MultiplyCommand implements ICommand {
 		this._request = request;
 	}
 	public execute(): void {
-		this._receiver.multiply(this._request);
+		this._receiver.handleMultiply(this._request);
 	}
 }

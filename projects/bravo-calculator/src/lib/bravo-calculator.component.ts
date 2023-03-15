@@ -13,45 +13,40 @@ import { Store } from './core/redux/store.service';
 	styles: [],
 })
 export class BravoCalculatorComponent implements OnInit {
-	constructor(public _calCulatorStore: Store<ICalculatorState, CalculatorPayload>, private _reducerService: ReducerService<ICalculatorState, CalculatorAction>, public calculatorInvoker: CalculatorInvoker) {
+	constructor(public calCulatorStore: Store<ICalculatorState, CalculatorPayload>, private _reducerService: ReducerService<ICalculatorState, CalculatorAction>, public calculatorInvoker: CalculatorInvoker) {
 		this._reducerService.register(new CalculatorReducer());
 	}
 
-	ngOnInit(): void {}
-
-	onHandleAdd(event: HTMLInputElement) {
-		this.calculatorInvoker.setCurrentOperator(EOperatorString.Addition);
-		if (event.value) {
-			this.calculatorInvoker.add(parseFloat(event.value));
-			event.focus();
-			event.value = this.calculatorInvoker.result.toString();
-		} else {
-			this.calculatorInvoker.switchOperator();
-		}
+	ngOnInit(): void {
+		this.calculatorInvoker.addAction([1, 4, 14, 457]);
 	}
 
-	onHandleSubtract(event: HTMLInputElement) {
-		if (event.value) {
-			event.focus();
-			event.value = this.calculatorInvoker.result.toString();
-		}
+	public onClickHandleAdd(event: HTMLInputElement) {
+		this.calculatorInvoker.addAction(parseFloat(event.value) | 0);
+		event.value = this.calculatorInvoker.result.toString();
 	}
 
-	onHandleMultiply(event: HTMLInputElement) {
-		if (event.value) {
-			event.focus();
-			event.value = this.calculatorInvoker.result.toString();
-		}
+	public onClickHandleSubtract(event: HTMLInputElement) {
+		this.calculatorInvoker.subtractAction(parseFloat(event.value) | 0);
+		event.value = this.calculatorInvoker.result.toString();
 	}
 
-	onHandleDivide(event: HTMLInputElement) {
-		this.calculatorInvoker.setCurrentOperator(EOperatorString.Division);
-		if (event.value) {
-			this.calculatorInvoker.divide(parseFloat(event.value));
-			event.focus();
-			event.value = this.calculatorInvoker.result.toString();
-		} else {
-			this.calculatorInvoker.switchOperator();
-		}
+	public onClickHandleMultiply(event: HTMLInputElement) {
+		this.calculatorInvoker.multiplyAction(parseFloat(event.value) | 0);
+		event.value = this.calculatorInvoker.result.toString();
+	}
+
+	public onClickHandleDivide(event: HTMLInputElement) {
+		this.calculatorInvoker.divideAction(parseFloat(event.value));
+		event.value = this.calculatorInvoker.result.toString();
+	}
+
+	public onClickEndCalculation() {
+		this.calculatorInvoker.endCalculationAction();
+	}
+
+	public onClickNumbersPad(event: HTMLInputElement) {
+		this.calculatorInvoker.setIsNexOperator(false);
+		event.value = '7';
 	}
 }

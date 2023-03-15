@@ -1,16 +1,16 @@
 <div class="calculator">
 	<p>expression: {{ calculatorInvoker.getCurrentExpression() }}</p>
-	<input class="input" id="input" #input />
+	<input class="input" id="input" #input value="0" />
 	<div class="buttons">
 		<div class="operators">
-			<div (click)="onHandleAdd(input)">+</div>
-			<div (click)="onHandleSubtract(input)">-</div>
-			<div (click)="onHandleMultiply(input)">&times;</div>
-			<div (click)="onHandleDivide(input)">&divide;</div>
+			<div (click)="onClickHandleAdd(input)">+</div>
+			<div (click)="onClickHandleSubtract(input)">-</div>
+			<div (click)="onClickHandleMultiply(input)">&times;</div>
+			<div (click)="onClickHandleDivide(input)">&divide;</div>
 		</div>
 		<div class="leftPanel">
 			<div class="numbers">
-				<div>7</div>
+				<div (click)="onClickNumbersPad(input)">7</div>
 				<div>8</div>
 				<div>9</div>
 			</div>
@@ -30,6 +30,6 @@
 				<div id="clear">C</div>
 			</div>
 		</div>
-		<div class="equal" id="result">=</div>
+		<div class="equal" id="result" (click)="onClickEndCalculation()">=</div>
 	</div>
 </div>

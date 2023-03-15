@@ -10,7 +10,6 @@ export interface ICommand {
 }
 
 export type ObjRequestCommand = {
-	inputType: EInputAction;
 	operands: number[] | number;
 };
 

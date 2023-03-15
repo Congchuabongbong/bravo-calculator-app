@@ -8,6 +8,6 @@ export class DivideCommand implements ICommand {
 		this._request = request;
 	}
 	public execute(): void {
-		this._receiver.divide(this._request);
+		this._receiver.handleDivide(this._request);
 	}
 }

@@ -1,11 +1,12 @@
 <div class="calculator">
-	<div class="input" id="input"></div>
+	<p>expression: {{ calculatorInvoker.getCurrentExpression() }}</p>
+	<input class="input" id="input" #input />
 	<div class="buttons">
 		<div class="operators">
-			<div>+</div>
-			<div>-</div>
-			<div>&times;</div>
-			<div>&divide;</div>
+			<div (click)="onHandleAdd(input)">+</div>
+			<div (click)="onHandleSubtract(input)">-</div>
+			<div (click)="onHandleMultiply(input)">&times;</div>
+			<div (click)="onHandleDivide(input)">&divide;</div>
 		</div>
 		<div class="leftPanel">
 			<div class="numbers">

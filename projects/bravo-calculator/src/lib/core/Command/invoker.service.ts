@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { RECEIVER_TOKEN } from '../../init-app/token';
-import { EInputAction, EOperatorType } from '../data-type/enum';
+import { EInputAction, EOperatorString, EOperatorType } from '../data-type/enum';
 import { CalculatorAction, CalculatorPayload, ICalculatorState, ICommand } from '../data-type/type';
 import { Store } from '../redux/store.service';
 import { AddCommand } from './concrete-command';
@@ -13,6 +13,7 @@ export class CalculatorInvoker {
 	public calculationHistories: string[] = [];
 	private _currentIndex: number = -1;
 	private _stringCommandHistory: string[] = [];
+	public isAllowSwitchOperator!: boolean; // khi nào được được switchOperator => Phải có một cờ cho phép
 	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
 
 	public add(operands: number[] | number = 0, inputType: EInputAction = EInputAction.Click) {
@@ -39,6 +40,19 @@ export class CalculatorInvoker {
 		//execute command
 		command.execute();
 		//dispatch store update
+	}
+
+	//!!test
+	getCurrentExpression() {
+		return this._receiver._expressionBuilder;
+	}
+
+	setCurrentOperator(operator: EOperatorString) {
+		this._receiver.setCurrentOperator(operator);
+	}
+
+	switchOperator() {
+		this._receiver.switchOperator();
 	}
 
 	public get result(): number {

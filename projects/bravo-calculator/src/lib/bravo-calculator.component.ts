@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CalculatorInvoker } from './core/command/invoker.service';
+import { EOperatorString } from './core/data-type/enum';
 import { CalculatorAction, CalculatorPayload, ICalculatorState } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
 import { ReducerService } from './core/redux/reducers.service';
@@ -12,20 +13,45 @@ import { Store } from './core/redux/store.service';
 	styles: [],
 })
 export class BravoCalculatorComponent implements OnInit {
-	constructor(public _calCulatorStore: Store<ICalculatorState, CalculatorPayload>, private _reducerService: ReducerService<ICalculatorState, CalculatorAction>, private calculatorInvoker: CalculatorInvoker) {
+	constructor(public _calCulatorStore: Store<ICalculatorState, CalculatorPayload>, private _reducerService: ReducerService<ICalculatorState, CalculatorAction>, public calculatorInvoker: CalculatorInvoker) {
 		this._reducerService.register(new CalculatorReducer());
 	}
 
-	ngOnInit(): void {
-		this.calculatorInvoker.add([1, 2, 3, 4, 5, 6, 7, 7]);
-		this.calculatorInvoker.add([1, 2, 3, 4, 5, 6, 7, 7]);
-		this.calculatorInvoker.divide(35);
-		this.calculatorInvoker.endCalculation();
-		// this.calculatorInvoker.add([1, 2, 3, 4, 5, 6, 7, 7]);
-		// this.calculatorInvoker.add([1, 2, 3, 4, 5, -6, 7, -7]);
-		// this.calculatorInvoker.endCalculation();
-		// this.calculatorInvoker.add();
-		// this.calculatorInvoker.add(2000);
-		// this.calculatorInvoker.endCalculation();
+	ngOnInit(): void {}
+
+	onHandleAdd(event: HTMLInputElement) {
+		this.calculatorInvoker.setCurrentOperator(EOperatorString.Addition);
+		if (event.value) {
+			this.calculatorInvoker.add(parseFloat(event.value));
+			event.focus();
+			event.value = this.calculatorInvoker.result.toString();
+		} else {
+			this.calculatorInvoker.switchOperator();
+		}
+	}
+
+	onHandleSubtract(event: HTMLInputElement) {
+		if (event.value) {
+			event.focus();
+			event.value = this.calculatorInvoker.result.toString();
+		}
+	}
+
+	onHandleMultiply(event: HTMLInputElement) {
+		if (event.value) {
+			event.focus();
+			event.value = this.calculatorInvoker.result.toString();
+		}
+	}
+
+	onHandleDivide(event: HTMLInputElement) {
+		this.calculatorInvoker.setCurrentOperator(EOperatorString.Division);
+		if (event.value) {
+			this.calculatorInvoker.divide(parseFloat(event.value));
+			event.focus();
+			event.value = this.calculatorInvoker.result.toString();
+		} else {
+			this.calculatorInvoker.switchOperator();
+		}
 	}
 }

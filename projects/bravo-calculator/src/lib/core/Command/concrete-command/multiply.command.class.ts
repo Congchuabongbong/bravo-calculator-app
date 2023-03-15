@@ -1,12 +1,14 @@
-import { ICommand } from '../../data-type/type';
+import { ICommand, ObjRequestCommand } from '../../data-type/type';
 import { CalculatorReceiver } from '../receiver';
 
 export class MultiplyCommand implements ICommand {
 	private _receiver!: CalculatorReceiver;
-	private _operands!: number[] | number;
-	constructor(calculatorReceiver: CalculatorReceiver, operands: number[] | number) {
+	private _request!: ObjRequestCommand;
+	constructor(calculatorReceiver: CalculatorReceiver, request: ObjRequestCommand) {
 		this._receiver = calculatorReceiver;
-		this._operands = operands;
+		this._request = request;
 	}
-	public execute(): void {}
+	public execute(): void {
+		this._receiver.multiply(this._request);
+	}
 }

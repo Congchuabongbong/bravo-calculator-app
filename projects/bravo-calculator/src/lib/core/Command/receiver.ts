@@ -1,4 +1,5 @@
-import { EOperatorEVal, EOperatorString, EOperatorType } from '../data-type/enum';
+import { BehaviorSubject } from 'rxjs';
+import { EOperatorEVal, EOperatorString } from '../data-type/enum';
 import { ObjRequestCommand } from '../data-type/type';
 //handle logic here
 
@@ -7,38 +8,59 @@ export class CalculatorReceiver {
 	private _isResultDisplayed: boolean = false;
 	public isClear: boolean = false;
 	public isReset: boolean = false;
-	private _calculationStringBuilder: string = '';
-	private _calculationEvalBuilder: string = '';
+
+	_expressionBuilder: string = '';
+	private _expressionEvalBuilder: string = '';
+	private currentOperatorSubject = new BehaviorSubject<EOperatorString>(EOperatorString.Addition);
+
+	public get expressionStringBuilder() {
+		return this._expressionBuilder;
+	}
+
+	public switchOperator() {
+		if (!this._isEndingSymbols(this._expressionBuilder) && !this._isEndingSymbols(this._expressionEvalBuilder)) return;
+		this._expressionBuilder = this._expressionBuilder.slice(0, -3) + this.currentOperator;
+		if (this.currentOperator === EOperatorString.Multiplication) {
+			this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + EOperatorEVal.Multiplication;
+		} else if (this.currentOperator === EOperatorString.Division) {
+			this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + EOperatorEVal.Division;
+		}
+	}
+
+	public setCurrentOperator(operator: EOperatorString) {
+		this.currentOperatorSubject.next(operator);
+	}
+
+	get currentOperator() {
+		return this.currentOperatorSubject.getValue();
+	}
 
 	//**add
-	public add(request: ObjRequestCommand, isAbsolute: boolean = false): void {
-		this._buildCalculationString(request.operands, EOperatorType.Add);
-		this._executeExpression(this._removeTrailingSymbols(this._calculationEvalBuilder));
+	public add(request: ObjRequestCommand): void {
+		this._buildExpressionString(request.operands);
+		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
 	}
 
 	//**Subtract */
-	public subtract(operands: number[] | number): void {
-		this._buildCalculationString(operands, EOperatorType.Subtract);
-		this._executeExpression(this._removeTrailingSymbols(this._calculationEvalBuilder));
+	public subtract(request: ObjRequestCommand): void {
+		this._buildExpressionString(request.operands);
+		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
 	}
 
 	//**Multiply */
-	public multiply(operands: number[] | number): void {
-		this._buildCalculationString(operands, EOperatorType.Multiple);
-		this._executeExpression(this._removeTrailingSymbols(this._calculationEvalBuilder));
+	public multiply(request: ObjRequestCommand): void {
+		this._buildExpressionString(request.operands);
+		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
 	}
 
 	//**Divide */
 	public divide(request: ObjRequestCommand): void {
-		this._buildCalculationString(request.operands, EOperatorType.Divide);
-		this._executeExpression(this._removeTrailingSymbols(this._calculationEvalBuilder));
+		this._buildExpressionString(request.operands);
+		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
 	}
 
 	//**Divide percent */
-	public dividePercent(operands: number[] | number): void {
-		this._buildCalculationString(operands, EOperatorType.DividePercent);
-		this._executeExpression(this._removeTrailingSymbols(this._calculationEvalBuilder));
-	}
+	public dividePercent(operands: number[] | number): void {}
 
 	//**convert to decimal */
 	public convertToDecimal(number: number): number {
@@ -52,8 +74,8 @@ export class CalculatorReceiver {
 
 	public clean(): void {
 		this.isClear = true;
-		this._calculationStringBuilder = '';
-		this._calculationEvalBuilder = '';
+		this._expressionBuilder = '';
+		this._expressionEvalBuilder = '';
 		this.result = 0;
 	}
 
@@ -69,50 +91,34 @@ export class CalculatorReceiver {
 	//**equal command
 	public endCalculation(): string {
 		//?? wrong here
-		if (this._calculationStringBuilder.length <= 0) {
+		if (this._expressionBuilder.length <= 0) {
 			return '';
 		}
-		this._calculationStringBuilder = this._removeTrailingSymbols(this._calculationStringBuilder);
-		let completeHistory = (this._calculationStringBuilder += ` = ${this.result.toFixed(1)}`);
+		this._expressionBuilder = this._removeTrailingSymbols(this._expressionBuilder);
+		let completeHistory = (this._expressionBuilder += ` = ${this.result.toFixed(1)}`);
 		//reset string builder
-		this._calculationStringBuilder = '';
-		this._calculationEvalBuilder = '';
+		this._expressionBuilder = '';
+		this._expressionEvalBuilder = '';
 		this._isResultDisplayed = true;
 		console.log(completeHistory);
 		return completeHistory;
 	}
-	//
-	private _buildCalculationString(operands: number[] | number, type: EOperatorType, isAbsolute: boolean = false) {
-		let operatorDisplay: string;
-		let operatorEval: string;
-		switch (type) {
-			case EOperatorType.Add:
-				operatorDisplay = EOperatorString.Addition;
-				operatorEval = EOperatorEVal.Addition;
-				break;
-			case EOperatorType.Subtract:
-				operatorDisplay = EOperatorString.Subtraction;
-				operatorEval = EOperatorEVal.Subtraction;
-				break;
-			case EOperatorType.Multiple:
-				operatorDisplay = EOperatorString.Multiplication;
-				operatorEval = EOperatorEVal.Multiplication;
-				break;
-			case EOperatorType.Divide:
-				operatorDisplay = EOperatorString.Division;
-				operatorEval = EOperatorEVal.Division;
-				break;
-			default:
-				operatorDisplay = EOperatorString.Addition;
-				operatorEval = EOperatorEVal.Addition;
+
+	//** Build Expression String */
+	private _buildExpressionString(operands: number[] | number) {
+		let operatorDisplay: string = this.currentOperator;
+		let operatorEval: string = this.currentOperator;
+		if (this.currentOperator === EOperatorString.Multiplication) {
+			operatorEval = EOperatorEVal.Multiplication;
+		} else if (this.currentOperator === EOperatorString.Division) {
+			operatorEval = EOperatorEVal.Division;
 		}
 		let equation;
 		let equationEval;
-		if (typeof operands === 'object') {
+		if (Array.isArray(operands)) {
 			equation = operands.map(val => val.toFixed(1)).join(operatorDisplay);
 			equation = '('.concat(equation).concat(')');
 			equation += operatorDisplay;
-
 			equationEval = operands.map(val => val).join(operatorEval);
 			equationEval = '('.concat(equationEval).concat(')');
 			equationEval += operatorEval;
@@ -125,9 +131,8 @@ export class CalculatorReceiver {
 			equationEval = (this.result.toString() + operatorEval).concat(equationEval);
 			this._isResultDisplayed = false;
 		}
-
-		this._calculationStringBuilder += equation;
-		this._calculationEvalBuilder += equationEval;
+		this._expressionBuilder += equation;
+		this._expressionEvalBuilder += equationEval;
 	}
 
 	private _removeTrailingSymbols(input: string): string {
@@ -143,6 +148,18 @@ export class CalculatorReceiver {
 			return input.slice(0, -3);
 		}
 		return input;
+	}
+
+	private _isEndingSymbols(input: string) {
+		const ending = input.slice(-3);
+		return (
+			ending === EOperatorString.Addition ||
+			ending === EOperatorString.Division ||
+			ending === EOperatorEVal.Division ||
+			ending === EOperatorString.Multiplication ||
+			ending === EOperatorEVal.Multiplication ||
+			ending === EOperatorString.Subtraction
+		);
 	}
 
 	private _executeExpression(express: string) {

@@ -8,6 +8,6 @@ export class AddCommand implements ICommand {
 		this._request = request;
 	}
 	public execute(): void {
-		this._receiver.handleAdd(this._request);
+		this._receiver.handleAddCommand(this._request);
 	}
 }

@@ -1,6 +1,9 @@
+<ul style="height: 100px; overflow-y: scroll">
+	<li *ngFor="let history of calculatorInvoker.calculationHistories">{{ history }}</li>
+</ul>
 <div class="calculator">
 	<p>expression: {{ calculatorInvoker.getCurrentExpression() }}</p>
-	<input class="input" id="input" #input value="0" />
+	<input class="input" id="input" #input value="0" (keydown)="onKeyDown($event)" />
 	<div class="buttons">
 		<div class="operators">
 			<div (click)="onClickHandleAdd(input)">+</div>
@@ -30,6 +33,6 @@
 				<div id="clear">C</div>
 			</div>
 		</div>
-		<div class="equal" id="result" (click)="onClickEndCalculation()">=</div>
+		<div class="equal" id="result" (click)="onClickEndCalculation(input)">=</div>
 	</div>
 </div>

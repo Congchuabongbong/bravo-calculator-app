@@ -17,6 +17,7 @@ export enum EOperatorString {
 	Subtraction = ' - ',
 	Multiplication = ' x ',
 	Division = ' ÷ ',
+	Equal = ' = ',
 }
 
 export enum EOperatorEVal {

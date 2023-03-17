@@ -8,12 +8,10 @@ import { DivideCommand } from './concrete-command/divide.command.class';
 import { CalculatorReceiver } from './receiver';
 import { SubtractCommand } from './concrete-command/subtract.command.class';
 import { MultiplyCommand } from './concrete-command/multiply.command.class';
+import { EqualCommand } from './concrete-command/equal.command.class';
 
 @Injectable()
 export class CalculatorInvoker {
-	private _commandHistory: ICommand[] = [];
-	private _currentIndex: number = -1;
-	public calculationHistories: string[] = [];
 	private _stringCommandHistory: string[] = [];
 
 	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
@@ -38,14 +36,9 @@ export class CalculatorInvoker {
 		this._executeCommand(command, EOperatorType.Divide);
 	}
 
-	public endCalculationAction() {
-		//TODO: handle last input when click endCalculator
-		let calculationHistory = this._receiver.handleEndCalculation();
-		if (this.calculationHistories.length < 5 && calculationHistory.length > 0) this.calculationHistories.push(calculationHistory);
-		else if (this.calculationHistories.length > 5) {
-			this.calculationHistories.shift();
-			this.calculationHistories.push(calculationHistory);
-		}
+	public endCalculationAction(operands: number[] | number) {
+		const command = new EqualCommand(this._receiver, { operands });
+		this._executeCommand(command, EOperatorType.Equals);
 	}
 
 	//execute command end dispatch update state into store!
@@ -55,13 +48,26 @@ export class CalculatorInvoker {
 		//dispatch store update
 	}
 
-	//!!test
+	//!!test display qua store
 	getCurrentExpression() {
 		return this._receiver.expressionStringBuilder;
 	}
 
+	//!!test
+	get calculationHistories(): string[] {
+		return this._receiver.calculationHistories;
+	}
+
 	public setIsNexOperator(flag: boolean) {
 		this._receiver.setIsNexOperator(flag);
+	}
+
+	public setIsDeleteResultDisplay(flag: boolean) {
+		this._receiver.setIsDeleteResultDisplay(flag);
+	}
+
+	public get isDeleteResultDisplay() {
+		return this._receiver.IsDeleteResultDisplay;
 	}
 
 	public get result(): number {

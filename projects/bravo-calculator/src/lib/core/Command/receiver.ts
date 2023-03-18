@@ -1,95 +1,73 @@
-import { BehaviorSubject } from 'rxjs';
 import { EOperatorEVal, EOperatorString } from '../data-type/enum';
 import { ObjRequestCommand } from '../data-type/type';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class CalculatorReceiver {
-	private _currentOperatorSubject = new BehaviorSubject<EOperatorString>(EOperatorString.Addition);
-	private _nextOperator = new BehaviorSubject<boolean>(false); // set and check switch operator
-	private _deleteResultDisplay = new BehaviorSubject<boolean>(false); // prevent deletion result
-
+	//**Declaration here */
+	public result: number = 0;
+	private _currentOperator = EOperatorString.Addition;
+	private _isNextOperator: boolean = false;
+	private _isDeleteResultDisplay = false;
 	private _expressionBuilder: string = ''; // build expression
 	private _expressionEvalBuilder: string = ''; // build eval expression
-	public result: number = 0;
 	private _isStartBuildExpression: boolean = false;
 	private _calculationHistories: string[] = []; // cache expression calculation
 
-	public setIsNexOperator(flag: boolean) {
-		this._nextOperator.next(flag);
-	}
-
-	public setIsDeleteResultDisplay(flag: boolean) {
-		this._deleteResultDisplay.next(flag);
-	}
-
-	public get IsDeleteResultDisplay() {
-		return this._deleteResultDisplay.getValue();
+	//**get end setter here:
+	public set isNexOperator(flag: boolean) {
+		this._isNextOperator = flag;
 	}
 
 	public get isNextOperator(): boolean {
-		return this._nextOperator.getValue();
+		return this._isNextOperator;
+	}
+
+	public set isDeleteResultDisplay(flag: boolean) {
+		this._isDeleteResultDisplay !== flag && (this._isDeleteResultDisplay = flag);
+	}
+
+	public get isDeleteResultDisplay() {
+		return this._isDeleteResultDisplay;
 	}
 
 	public get expressionStringBuilder(): string {
 		return this._expressionBuilder;
 	}
 
-	get calculationHistories(): string[] {
+	public get calculationHistories(): string[] {
 		return this._calculationHistories;
 	}
 
-	public switchNextOperator() {
-		if (!this._isEndingSymbols(this._expressionBuilder) && !this._isEndingSymbols(this._expressionEvalBuilder)) return;
-		switch (this.currentOperator) {
-			case EOperatorString.Multiplication:
-				this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + EOperatorEVal.Multiplication;
-				break;
-			case EOperatorString.Division:
-				this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + EOperatorEVal.Division;
-				break;
-			default:
-				this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + this.currentOperator;
-				break;
-		}
-		this._expressionBuilder = this._expressionBuilder.slice(0, -3) + this.currentOperator;
+	public get currentOperator() {
+		return this._currentOperator;
 	}
 
-	public setCurrentOperator(operator: EOperatorString) {
-		if (this.currentOperator !== operator) this._currentOperatorSubject.next(operator);
-		this._isStartBuildExpression && this.isNextOperator && this.switchNextOperator();
-	}
-
-	get currentOperator() {
-		return this._currentOperatorSubject.getValue();
+	public set currentOperator(operator: EOperatorString) {
+		this.currentOperator !== operator && (this._currentOperator = operator);
+		this._isStartBuildExpression && this.isNextOperator && this._switchNextOperator();
 	}
 
 	//=========================================================================================================================================================================================================================
 	//**Handle Command here!
 	//**add
 	public handleAddCommand(request: ObjRequestCommand): void {
-		if (this.currentOperator === EOperatorString.Equal) this.endBuildExpression();
-		this.setCurrentOperator(EOperatorString.Addition);
-		this._executeCommand(request.operands);
+		this._executeCommand(request.operands, EOperatorString.Addition);
 	}
 
 	//**Subtract */
 	public handleSubtractCommand(request: ObjRequestCommand): void {
-		if (this.currentOperator === EOperatorString.Equal) this.endBuildExpression();
-		this.setCurrentOperator(EOperatorString.Subtraction);
-		this._executeCommand(request.operands);
+		this._executeCommand(request.operands, EOperatorString.Subtraction);
 	}
 
 	//**Multiply */
 	public handleMultiplyCommand(request: ObjRequestCommand): void {
-		if (this.currentOperator === EOperatorString.Equal) this.endBuildExpression();
-		this.setCurrentOperator(EOperatorString.Multiplication);
-		this._executeCommand(request.operands);
+		this._executeCommand(request.operands, EOperatorString.Multiplication);
 	}
 
 	//**Divide */
 	public handleDivideCommand(request: ObjRequestCommand): void {
-		if (this.currentOperator === EOperatorString.Equal) this.endBuildExpression();
-		this.setCurrentOperator(EOperatorString.Division);
-		this._executeCommand(request.operands);
+		this._executeCommand(request.operands, EOperatorString.Division);
 	}
 
 	//**Divide percent */
@@ -109,7 +87,9 @@ export class CalculatorReceiver {
 	}
 
 	//**execute command */
-	private _executeCommand(operands: number[] | number): void {
+	private _executeCommand(operands: number[] | number, operatorString: EOperatorString): void {
+		if (this.currentOperator === EOperatorString.Equal) this._endBuildExpression();
+		this.currentOperator = operatorString;
 		if (this.isNextOperator) return;
 		this._buildExpressionString(operands);
 		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
@@ -117,10 +97,16 @@ export class CalculatorReceiver {
 
 	//**Clean Command */
 	public handleClean(): void {
-		//reset new state and default values
+		//reset state:
+		this._isNextOperator = false;
+		this._isDeleteResultDisplay = false;
+		this._isStartBuildExpression = false;
+		//reset value
+		this._expressionBuilder = '';
+		this._expressionEvalBuilder = '';
 		this.result = 0;
+		this._currentOperator = EOperatorString.Addition;
 		this._calculationHistories = [];
-		this.beginBuildExpression();
 	}
 
 	//**backspace command
@@ -139,41 +125,42 @@ export class CalculatorReceiver {
 			console.warn('Do not start calculate expression!!!');
 			return;
 		}
-		let expressionComplete = '';
+		let completeExpression = '';
 		if (!Array.isArray(request.operands)) {
 			if (this.isNextOperator) {
-				this.setCurrentOperator(EOperatorString.Equal);
-				expressionComplete = this._expressionBuilder + `${this._isInt(this.result) ? this.result.toFixed(1) : this.result}`;
+				this.currentOperator = EOperatorString.Equal;
+				completeExpression = this._expressionBuilder + `${this._isInt(this.result) ? this.result.toFixed(1) : this.result}`;
 			} else {
+				//!!check
 				this._expressionBuilder += `${this._isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
 				this._expressionEvalBuilder += `${this._isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
 				this._executeExpression(this._expressionEvalBuilder);
-				expressionComplete = this._expressionBuilder + `${EOperatorString.Equal}${this._isInt(this.result) ? this.result.toFixed(1) : this.result}`;
+				completeExpression = this._expressionBuilder + `${EOperatorString.Equal}${this._isInt(this.result) ? this.result.toFixed(1) : this.result}`;
 				this._expressionBuilder += EOperatorString.Equal;
+				this.currentOperator = EOperatorString.Equal;
 			}
 		}
-		this.setIsNexOperator(false);
-		this.setCurrentOperator(EOperatorString.Equal);
-		this._saveCalculationExpressions(expressionComplete);
+		this.isNexOperator = false;
+		this._saveCompleteExpressions(completeExpression);
 	}
 	//============================================================================================================================================================================================================================================
 
 	//**begin calculate */
-	public beginBuildExpression() {
+	private _beginBuildExpression() {
 		this._isStartBuildExpression = true;
 		this._expressionBuilder = '';
 		this._expressionEvalBuilder = '';
 	}
 
 	//**end calculate */
-	public endBuildExpression() {
+	private _endBuildExpression() {
 		this._isStartBuildExpression = false;
 		this._expressionBuilder = '';
 		this._expressionEvalBuilder = '';
 	}
 
 	//**save calculate expression */
-	private _saveCalculationExpressions(expression: string) {
+	private _saveCompleteExpressions(expression: string) {
 		if (this._calculationHistories.length < 5 && expression.length > 0) this._calculationHistories.push(expression);
 		else if (this._calculationHistories.length >= 5) {
 			this._calculationHistories.shift();
@@ -183,7 +170,7 @@ export class CalculatorReceiver {
 
 	//** Build Expression String */
 	private _buildExpressionString(operands: number[] | number) {
-		if (!this._isStartBuildExpression) this.beginBuildExpression();
+		if (!this._isStartBuildExpression) this._beginBuildExpression();
 		let operatorDisplay: string = this.currentOperator;
 		let operatorEval: string = this.currentOperator;
 		if (this.currentOperator === EOperatorString.Multiplication) {
@@ -207,20 +194,12 @@ export class CalculatorReceiver {
 		}
 		this._expressionBuilder += equation;
 		this._expressionEvalBuilder += equationEval;
-		this.setIsNexOperator(true);
+		this.isNexOperator = true;
 	}
 
 	private _removeTrailingSymbols(input: string): string {
 		const ending = input.slice(-3);
-		if (
-			ending === EOperatorString.Addition ||
-			ending === EOperatorString.Division ||
-			ending === EOperatorEVal.Division ||
-			ending === EOperatorString.Multiplication ||
-			ending === EOperatorEVal.Multiplication ||
-			ending === EOperatorString.Subtraction ||
-			ending === EOperatorString.Equal
-		) {
+		if (this._isEndingSymbols(ending)) {
 			return input.slice(0, -3);
 		}
 		return input;
@@ -239,13 +218,29 @@ export class CalculatorReceiver {
 		);
 	}
 
+	private _switchNextOperator() {
+		if (!this._isEndingSymbols(this._expressionBuilder) && !this._isEndingSymbols(this._expressionEvalBuilder)) return;
+		switch (this.currentOperator) {
+			case EOperatorString.Multiplication:
+				this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + EOperatorEVal.Multiplication;
+				break;
+			case EOperatorString.Division:
+				this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + EOperatorEVal.Division;
+				break;
+			default:
+				this._expressionEvalBuilder = this._expressionEvalBuilder.slice(0, -3) + this.currentOperator;
+				break;
+		}
+		this._expressionBuilder = this._expressionBuilder.slice(0, -3) + this.currentOperator;
+	}
+
 	private _executeExpression(express: string) {
 		if (this._validateExpression(express)) {
 			this.result = eval(express);
-			this.setIsDeleteResultDisplay(false);
+			this.isDeleteResultDisplay = false;
 		} else {
 			alert(`Expression invalid: ${express}`);
-			console.log(express);
+			console.error(express);
 		}
 	}
 

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { RECEIVER_TOKEN } from '../../init-app/token';
 import { EOperatorType } from '../data-type/enum';
-import { CalculatorAction, CalculatorPayload, ICalculatorState, ICommand } from '../data-type/type';
+import { CalculatorAction, ICalculatorPayload, ICalculatorState, ICommand } from '../data-type/type';
 import { Store } from '../redux/store.service';
 import { AddCommand } from './concrete-command';
 import { DivideCommand } from './concrete-command/divide.command.class';
@@ -21,12 +21,12 @@ export class CalculatorInvoker {
 		this._executeCommand(command, EOperatorType.Add);
 	}
 
-	public subtractAction(operands: number | number = 0) {
+	public subtractAction(operands: number[] | number = 0) {
 		const command = new SubtractCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Subtract);
 	}
 
-	public multiplyAction(operands: number | number = 0) {
+	public multiplyAction(operands: number[] | number = 0) {
 		const command = new MultiplyCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Multiple);
 	}
@@ -45,6 +45,7 @@ export class CalculatorInvoker {
 	private _executeCommand(command: ICommand, type: EOperatorType): void {
 		//execute command
 		command.execute();
+
 		//dispatch store update
 	}
 
@@ -58,26 +59,27 @@ export class CalculatorInvoker {
 		return this._receiver.calculationHistories;
 	}
 
-	public setIsNexOperator(flag: boolean) {
-		this._receiver.setIsNexOperator(flag);
+	public set isNexOperator(flag: boolean) {
+		this._receiver.isNexOperator = flag;
 	}
 
-	public setIsDeleteResultDisplay(flag: boolean) {
-		this._receiver.setIsDeleteResultDisplay(flag);
+	public set isDeleteResultDisplay(flag: boolean) {
+		this._receiver.isDeleteResultDisplay = flag;
 	}
 
 	public get isDeleteResultDisplay() {
-		return this._receiver.IsDeleteResultDisplay;
+		return this._receiver.isDeleteResultDisplay;
 	}
 
 	public get result(): number {
 		return this._receiver.result;
 	}
 
-	private creatorPayload(): CalculatorPayload {
-		const payload: Partial<CalculatorPayload> = {};
+	private creatorPayload(): ICalculatorPayload {
+		const payload: Partial<ICalculatorPayload> = {};
 		payload.result = this.result;
-		payload.calculationHistories = this._stringCommandHistory;
-		return payload as CalculatorPayload;
+		payload.calculationHistories = this._receiver.calculationHistories;
+		payload.currentExpression = this._receiver.expressionStringBuilder;
+		return payload as ICalculatorPayload;
 	}
 }

@@ -12,9 +12,9 @@ export class Store<S, A> {
 		this.state$ = new BehaviorSubject(this.initialState);
 	}
 
-	public dispatch(payload: A) {
+	public dispatch(action: A) {
 		const currentState = this.getState();
-		const newState = this.reducerService.reduce(currentState, payload);
+		const newState = this.reducerService.reduce(currentState, action);
 		this.state$.next(newState);
 	}
 

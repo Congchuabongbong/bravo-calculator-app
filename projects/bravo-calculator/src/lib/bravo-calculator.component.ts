@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { CalculatorAction, CalculatorPayload, ICalculatorState } from './core/data-type/type';
+import { CalculatorAction, ICalculatorPayload, ICalculatorState } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
 import { ReducerService } from './core/redux/reducers.service';
 import { Store } from './core/redux/store.service';
@@ -12,13 +12,12 @@ import { Store } from './core/redux/store.service';
 	styles: [],
 })
 export class BravoCalculatorComponent implements OnInit {
-	@ViewChild('input') myInput!: ElementRef;
-	constructor(public calCulatorStore: Store<ICalculatorState, CalculatorPayload>, private _reducerService: ReducerService<ICalculatorState, CalculatorAction>, public calculatorInvoker: CalculatorInvoker) {
-		this._reducerService.register(new CalculatorReducer());
+	constructor(public calculationStore: Store<ICalculatorState, ICalculatorPayload>, private _calculationReducers: ReducerService<ICalculatorState, CalculatorAction>, public calculatorInvoker: CalculatorInvoker) {
+		this._calculationReducers.register(new CalculatorReducer());
 	}
 
 	ngOnInit(): void {
-		// this.calculatorInvoker.addAction([1, 4, 14, 457]);
+		this.calculatorInvoker.addAction([1, 3, 5, 6, 7]);
 	}
 
 	public onClickHandleAdd(event: any) {
@@ -47,8 +46,8 @@ export class BravoCalculatorComponent implements OnInit {
 	}
 
 	public onClickNumbersPad(event: any) {
-		this.calculatorInvoker.setIsDeleteResultDisplay(true);
-		this.calculatorInvoker.setIsNexOperator(false);
+		this.calculatorInvoker.isDeleteResultDisplay = true;
+		this.calculatorInvoker.isNexOperator = false;
 		event.value = '7';
 	}
 

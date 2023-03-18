@@ -13,6 +13,6 @@ import { INITIAL_STATE_CALCULATOR, RECEIVER_TOKEN } from './init-app';
 	declarations: [BravoCalculatorComponent, DisplayScreenComponent, HistoryScreenComponent, NumberPadComponent],
 	imports: [CommonModule],
 	exports: [BravoCalculatorComponent],
-	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver, useClass: CalculatorInvoker }, ReducerService, Store, CalculatorInvoker],
+	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver }, ReducerService, Store, CalculatorInvoker],
 })
 export class BravoCalculatorModule {}

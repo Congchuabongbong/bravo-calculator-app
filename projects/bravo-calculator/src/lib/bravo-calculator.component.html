@@ -3,7 +3,7 @@
 </ul>
 <div class="calculator">
 	<p>expression: {{ calculatorInvoker.getCurrentExpression() }}</p>
-	<input class="input" id="input" #input value="0" (keydown)="onKeyDown($event)" />
+	<input type="text" class="input" id="input" #input (keydown)="onKeyDown($event)" [ngModel]="myNumber | thousandsSeparator" (ngModelChange)="myNumber = $event" />
 	<div class="buttons">
 		<div class="operators">
 			<div (click)="onClickHandleAdd(input)">+</div>
@@ -30,9 +30,10 @@
 			<div class="numbers">
 				<div>0</div>
 				<div>.</div>
-				<div id="clear">C</div>
+				<div id="clear" (click)="onBackSpace(input)">C</div>
 			</div>
 		</div>
 		<div class="equal" id="result" (click)="onClickEndCalculation(input)">=</div>
+		<div></div>
 	</div>
 </div>

@@ -6,13 +6,13 @@ import { Injectable } from '@angular/core';
 export class CalculatorReceiver {
 	//**Declaration here */
 	public result: number = 0;
-	private _currentOperator = EOperatorString.Addition;
-	private _isNextOperator: boolean = false;
-	private _isDeleteResultDisplay = false;
-	private _expressionBuilder: string = ''; // build expression
-	private _expressionEvalBuilder: string = ''; // build eval expression
-	private _isStartBuildExpression: boolean = false;
-	private _calculationHistories: string[] = []; // cache expression calculation
+	private _currentOperator!: EOperatorString;
+	private _isNextOperator!: boolean;
+	private _isDeleteResultDisplay!: boolean;
+	private _expressionBuilder!: string; // build expression
+	private _expressionEvalBuilder!: string; // build eval expression
+	private _isStartBuildExpression!: boolean;
+	private _calculationHistories!: string[]; // cache expression calculation
 
 	//**get end setter here:
 	public set isNexOperator(flag: boolean) {
@@ -48,6 +48,9 @@ export class CalculatorReceiver {
 		this._isStartBuildExpression && this.isNextOperator && this._switchNextOperator();
 	}
 
+	constructor() {
+		this.handleClean();
+	}
 	//=========================================================================================================================================================================================================================
 	//**Handle Command here!
 	//**add

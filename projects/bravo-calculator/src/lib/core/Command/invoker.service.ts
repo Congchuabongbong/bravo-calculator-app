@@ -12,11 +12,10 @@ import { EqualCommand } from './concrete-command/equal.command.class';
 
 @Injectable()
 export class CalculatorInvoker {
-	private _stringCommandHistory: string[] = [];
-
 	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
 
 	public addAction(operands: number[] | number = 0) {
+		console.log(operands);
 		const command = new AddCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Add);
 	}

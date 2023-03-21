@@ -1,4 +1,4 @@
-<ul style="height: 100px; overflow-y: scroll">
+<!-- <ul style="height: 100px; overflow-y: scroll">
 	<li *ngFor="let history of calculatorInvoker.calculationHistories">{{ history }}</li>
 </ul>
 <div class="calculator">
@@ -35,5 +35,58 @@
 		</div>
 		<div class="equal" id="result" (click)="onClickEndCalculation(input)">=</div>
 		<div></div>
+	</div>
+</div> -->
+
+<div class="calculator-container">
+	<div class="label" style="height: 30px">Máy tính</div>
+	<div class="calculator-histories">
+		<span class="m-symbol">M</span>
+		<ul class="calculator-histories-expression #listHistory">
+			<li class="histories-expression">
+				10000.00 + 10000.00 + 10000.00 + 10000.00 + 14476.20 + 90000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 + 100000.00 +
+				100000.00 + 100000.00 + 325866038.94) = 977598116.82
+			</li>
+		</ul>
+	</div>
+
+	<div class="calculator-screen">
+		<div class="calculator-screen_top">
+			<span class="calculator-screen_top-left">
+				<i class="fa-solid fa-ellipsis-vertical"></i>
+			</span>
+			<div class="calculator-screen_top-right right">
+				<!-- <div class="calculator-screen_suggest"></div> -->
+				<p class="calculator-screen-currentExpress">3.0 + 3.0 = 6.0 3.0 +</p>
+			</div>
+		</div>
+		<div class="calculator-screen_bottom"><input type="text" class="calculator-input" /></div>
+	</div>
+	<!-- Grid -->
+	<div class="calculator-control">
+		<div class="calculator-control--numberpad">
+			<button class="btn">0</button>
+			<button class="btn">1</button>
+			<button class="btn">2</button>
+			<button class="btn">3</button>
+			<button class="btn">4</button>
+			<button class="btn">5</button>
+			<button class="btn">6</button>
+			<button class="btn">7</button>
+			<button class="btn">8</button>
+			<button class="btn">9</button>
+			<button class="btn">.</button>
+			<button class="btn"><i class="fa-solid fa-plus-minus"></i></button>
+		</div>
+		<div class="calculator-control--operators">
+			<button class="btn"><i class="fa-solid fa-divide"></i></button>
+			<button class="btn">x</button>
+			<button class="btn">-</button>
+			<button class="btn">+</button>
+			<button class="btn">C</button>
+			<button class="btn"><i class="fa-solid fa-arrow-left"></i></button>
+			<button class="btn"><i class="fa-light fa-percent"></i></button>
+			<button class="btn">=</button>
+		</div>
 	</div>
 </div>

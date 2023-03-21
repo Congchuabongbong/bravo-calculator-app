@@ -15,7 +15,6 @@ export class CalculatorInvoker {
 	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
 
 	public addAction(operands: number[] | number = 0) {
-		console.log(operands);
 		const command = new AddCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Add);
 	}

@@ -16,7 +16,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	@ViewChild('input', { static: true }) inputRef!: ElementRef;
 	private _receiverBroadcast!: BroadcastChannel;
 	public currentInput: number = 1;
-	public myNumber: number = 0;
+	public myNumber: string = '0';
 	public hostEl!: any;
 	constructor(private _elementRef: ElementRef, public calculationStore: Store<ICalculatorState, ICalculatorPayload>, private _calculationReducers: ReducerService<ICalculatorState, CalculatorAction>, public calculatorInvoker: CalculatorInvoker) {
 		this._calculationReducers.register(new CalculatorReducer());
@@ -85,14 +85,21 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	public onKeyDown(event: KeyboardEvent) {
+		//**handle number pad when  here
 		if (event.keyCode >= 48 && event.keyCode <= 57) {
 			(this.inputRef.nativeElement as HTMLInputElement).readOnly = false;
 			if (this.inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) this.inputRef.nativeElement.value = '';
 			this.calculatorInvoker.isDeleteResultDisplay = true;
 			this.calculatorInvoker.isNexOperator = false;
 		}
-		if (!this.calculatorInvoker.isDeleteResultDisplay || (event.keyCode >= 65 && event.keyCode <= 90) || (event.keyCode >= 37 && event.keyCode <= 40)) {
-			event.preventDefault();
+
+		//**Handle behavior when press backspace */
+
+		//** Handle  */
+		if (!this.calculatorInvoker.isDeleteResultDisplay) {
+			if ((event.keyCode >= 65 && event.keyCode <= 90) || (event.keyCode >= 37 && event.keyCode <= 40)) {
+				event.preventDefault();
+			}
 		}
 		if ((this.inputRef.nativeElement.value.length == 1 || this.inputRef.nativeElement.value === '0') && event.key === 'Backspace') {
 			//prevent keydown when input have length ==1 or value's = 0

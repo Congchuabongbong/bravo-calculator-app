@@ -10,12 +10,11 @@
 
 .calculator {
 	&-container {
-		height: 315px;
-		width: 360px;
+		height: 285px;
+		width: 365px;
 		background-color: rgb(255, 255, 255);
 		border: 1px solid #b3b3b3;
 		box-shadow: 0px 0px 10px -1px rgba(0, 0, 0, 0.25);
-
 		// &:hover {
 		// 	border: 1px solid #666666;
 		// }
@@ -24,31 +23,17 @@
 	&-histories {
 		position: relative;
 		display: flex;
+		visibility: hidden;
 		flex-direction: row;
 		justify-content: space-around;
 		height: 35px;
 		width: 100%;
-		background-color: #696969;
 		background-clip: padding-box;
 		color: #ffffff;
 		font-size: 0.7rem;
 		transition: height 0s ease-in-out 0.5s;
-		overflow-y: hidden;
+		overflow: hidden;
 		z-index: 9999;
-		&:hover {
-			height: 60px;
-			transition: height 0s ease-in-out 0.5s;
-			cursor: text;
-			~ .calculator-screen {
-				height: 45px;
-			}
-			~ .calculator-screen > .calculator-screen_top {
-				height: 15px;
-			}
-			~ .calculator-screen > .calculator-screen_top-left {
-				align-self: center;
-			}
-		}
 
 		.m-symbol {
 			display: inline-block;
@@ -79,6 +64,24 @@
 		}
 	}
 
+	&-histories.active {
+		background-color: #696969;
+		visibility: visible;
+		&:hover {
+			height: 60px;
+			transition: height 0s ease-in-out 0.5s;
+			cursor: text;
+			~ .calculator-screen {
+				height: 45px;
+			}
+			~ .calculator-screen > .calculator-screen_top {
+				height: 15px;
+			}
+			~ .calculator-screen > .calculator-screen_top-left {
+				align-self: center;
+			}
+		}
+	}
 	&-screen {
 		position: relative;
 		z-index: 1;
@@ -98,26 +101,32 @@
 			transition: height 0s ease-in-out 0.5s;
 			overflow-y: hidden;
 
-			&:hover {
-				cursor: text;
-			}
-
 			&-left {
-				font-size: 0.7rem;
+				display: inline-block;
+				width: 12px;
+				text-align: center;
+				font-size: 0.8rem;
 				color: #aaaaaa;
 				flex-shrink: 1;
 				align-self: center;
+				&:hover {
+					background-color: #f0f0f0;
+				}
 			}
 
 			&-right {
-				font-size: 0.8rem;
+				font-size: 0.7rem;
 				font-weight: normal;
-				color: #aaaaaa;
+				color: red;
 				flex-grow: 1;
 				text-align: right;
-				margin-top: 0.25rem;
+				margin-top: 0.3rem;
 				letter-spacing: 0.05rem;
 				line-height: 0.75rem;
+
+				&:hover {
+					cursor: text;
+				}
 			}
 		}
 
@@ -133,34 +142,126 @@
 				font-size: 1.3rem;
 				font-weight: 500;
 				text-align: right;
+				padding-left: 10px;
+				caret-color: transparent;
 			}
 		}
 	}
 
 	&-control {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		grid-template-rows: repeat(4, 1fr);
+		column-gap: 8px;
+		row-gap: 5px;
 		width: 100%;
 		height: 180px;
-		padding-left: 0.4rem;
-		padding-right: 0.4rem;
+		padding: 0.2rem;
+		overflow: hidden;
+		background-color: #f2f2f2;
+		background-clip: border-box;
+		border-bottom: inherit;
 	}
 }
 
 .btn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	width: 65px;
-	height: 40px;
+	align-self: stretch;
 	text-decoration: none;
-	font-family: inherit;
 	text-align: center;
+	font-family: inherit;
 	color: #2e549b;
 	font-size: 1.3rem;
 	font-weight: 500;
 	outline: none;
 	border: 1px solid #cdcece;
+	border-radius: 2px;
+
+	// background: linear-gradient(to bottom, #f2f4f4 0%, #ebeef1 100%);
+	&--operator {
+		background: linear-gradient(to bottom, #e5eaeb 0%, #d0d6d8 50%, #dde2e4 100%);
+		color: #595959;
+	}
+	&--clear,
+	&--equal {
+		background: linear-gradient(to bottom, #dde9f4 0%, #c6d7ed 50%, #dce2e4 100%);
+	}
+
+	&:hover {
+		background: linear-gradient(to bottom, #fef6d2 0%, #ffd353 50%, #fef6d2 100%);
+	}
+
+	&:active {
+		background: linear-gradient(to bottom, #d99e69 0%, #ff991f 50%, #ffbd47 100%);
+	}
+
+	//sort btn by layout
+	//column1
+	&--0 {
+		grid-area: 4/1/4/1;
+	}
+
+	&--1 {
+		grid-area: 3/1/3/1;
+	}
+
+	&--4 {
+		grid-area: 2/1/2/1;
+	}
+	&--7 {
+		grid-area: 1/1/1/1;
+	}
+	//column2
+	&--decimal {
+		grid-area: 4/2/4/2;
+	}
+
+	&--2 {
+		grid-area: 3/2/3/2;
+	}
+
+	&--5 {
+		grid-area: 2/2/2/2;
+	}
+	&--8 {
+		grid-area: 1/2/1/2;
+	}
+	//column3
+	&--abs {
+		grid-area: 4/3/4/3;
+	}
+
+	&--3 {
+		grid-area: 3/3/3/3;
+	}
+
+	&--6 {
+		grid-area: 2/3/2/3;
+	}
+	&--9 {
+		grid-area: 1/3/1/3;
+	}
+	//column4
+	&--add {
+		grid-area: 4/4/4/4;
+	}
+
+	&--subtract {
+		grid-area: 3/4/3/4;
+	}
+
+	&--multiple {
+		grid-area: 2/4/2/4;
+	}
+	&--divide {
+		grid-area: 1/4/1/4;
+	}
+	//column 5
 }
 
-.btn:hover {
-	background: linear-gradient(to bottom, #fdf1c5 0%, #fed760 100%);
-}
 // .calculator {
 // 	padding: 20px;
 // 	-webkit-box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);

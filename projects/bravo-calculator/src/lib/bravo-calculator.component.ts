@@ -107,4 +107,10 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			this.inputRef.nativeElement.value = 0;
 		}
 	}
+
+	public getNumber(event: any) {
+		let text = event.textContent;
+		// let number = parseFloat(text.match(/\d+\.\d+/)[0]);
+		console.log(text); // Hiển thị số 3.0 nếu người dùng click vào chữ 3.0
+	}
 }

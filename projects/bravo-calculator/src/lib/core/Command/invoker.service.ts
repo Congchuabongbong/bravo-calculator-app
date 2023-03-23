@@ -39,6 +39,9 @@ export class CalculatorInvoker {
 		this._executeCommand(command, EOperatorType.Equals);
 	}
 
+	public clearAction() {
+		this._receiver.handleClean();
+	}
 	//execute command end dispatch update state into store!
 	private _executeCommand(command: ICommand, type: EOperatorType): void {
 		//execute command

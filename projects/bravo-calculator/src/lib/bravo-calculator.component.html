@@ -1,5 +1,5 @@
-<div class="calculator-container">
-	<div class="calculator-histories" [ngClass]="calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''" lsm-tooltip="'Click dúp chuột vào một số bất kì'">
+<div class="calculator-container" tabindex="0" (keydown)="onKeyDown($event)">
+	<div class="calculator-histories" [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''" lsm-tooltip="'Click dúp chuột vào một số bất kì'">
 		<span class="m-symbol">M</span>
 		<ul class="calculator-histories-expression #listHistory">
 			<li class="histories-expression" *ngFor="let history of calculatorInvoker.calculationHistories">{{ history }}</li>
@@ -12,10 +12,10 @@
 				<i class="fa-solid fa-ellipsis-vertical"></i>
 			</span>
 			<div class="calculator-screen_top-right right">
-				<p class="calculator-screen-currentExpress">{{ calculatorInvoker.getCurrentExpression() }}</p>
+				<p class="calculator-screen_currentExpress">{{ calculatorInvoker.getCurrentExpression() }}</p>
 			</div>
 		</div>
-		<div class="calculator-screen_bottom"><input type="text" value="0" class="calculator-input" #input (keydown)="onKeyDown($event)" [ngModel]="myNumber | thousandsSeparator" (ngModelChange)="myNumber = $event" /></div>
+		<div class="calculator-screen_bottom"><input type="text" value="0" class="calculator-input" #input [ngModel]="myNumber | thousandsSeparator" (ngModelChange)="myNumber = $event" /></div>
 	</div>
 	<!-- Grid -->
 	<div class="calculator-control">
@@ -35,8 +35,8 @@
 		<button class="btn btn--operator btn--multiple" (click)="onClickHandleMultiply(input)">x</button>
 		<button class="btn btn--operator btn--subtract" (click)="onClickHandleSubtract(input)">-</button>
 		<button class="btn btn--operator btn--add" (click)="onClickHandleAdd(input)">+</button>
-		<button class="btn btn--clear">C</button>
-		<button class="btn btn--operator btn--backspace" (click)="onBackSpace(input)"><i class="fa-solid fa-arrow-left"></i></button>
+		<button class="btn btn--clear" (click)="onClearBtn(input)">C</button>
+		<button class="btn btn--operator btn--backspace" (click)="onBackSpace(input)" #btnBackspace><i class="fa-solid fa-arrow-left"></i></button>
 		<button class="btn btn--operator btn--percent"><i class="fa-light fa-percent"></i></button>
 		<button class="btn btn--equal" (click)="onClickEndCalculation(input)">=</button>
 	</div>

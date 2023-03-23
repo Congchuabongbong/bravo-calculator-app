@@ -1,6 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-
-import { formatNumberWithSpaces, unformattedNumber } from '../utils';
+import * as bigInt from 'big-integer';
 
 @Pipe({
 	name: 'thousandsSeparator',

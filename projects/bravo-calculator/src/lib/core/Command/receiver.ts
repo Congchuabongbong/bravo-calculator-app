@@ -49,7 +49,7 @@ export class CalculatorReceiver {
 	}
 
 	constructor() {
-		this.handleClean();
+		this.handleClean(true);
 	}
 	//=========================================================================================================================================================================================================================
 	//**Handle Command here!
@@ -94,12 +94,14 @@ export class CalculatorReceiver {
 		if (this.currentOperator === EOperatorString.Equal) this._endBuildExpression();
 		this.currentOperator = operatorString;
 		if (this.isNextOperator) return;
+		if (!this._isStartBuildExpression) this._beginBuildExpression();
 		this._buildExpressionString(operands);
 		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
+		this.isNexOperator = true;
 	}
 
 	//**Clean Command */
-	public handleClean(): void {
+	public handleClean(isReset: boolean = false): void {
 		//reset state:
 		this._isNextOperator = false;
 		this._isDeleteResultDisplay = false;
@@ -107,9 +109,11 @@ export class CalculatorReceiver {
 		//reset value
 		this._expressionBuilder = '';
 		this._expressionEvalBuilder = '';
-		this.result = 0;
 		this._currentOperator = EOperatorString.Addition;
-		this._calculationHistories = [];
+		if (isReset) {
+			this.result = 0;
+			this._calculationHistories = [];
+		}
 	}
 
 	//**backspace command
@@ -173,7 +177,6 @@ export class CalculatorReceiver {
 
 	//** Build Expression String */
 	private _buildExpressionString(operands: number[] | number) {
-		if (!this._isStartBuildExpression) this._beginBuildExpression();
 		let operatorDisplay: string = this.currentOperator;
 		let operatorEval: string = this.currentOperator;
 		if (this.currentOperator === EOperatorString.Multiplication) {
@@ -192,12 +195,11 @@ export class CalculatorReceiver {
 			equationEval += operatorEval;
 		} else {
 			let operand = Array.isArray(operands) ? operands[0] : operands;
-			equation = operand.toFixed(1) + operatorDisplay;
+			equation = (this._isInt(operand) ? operand.toFixed(1) : operand) + operatorDisplay;
 			equationEval = operand + operatorEval;
 		}
 		this._expressionBuilder += equation;
 		this._expressionEvalBuilder += equationEval;
-		this.isNexOperator = true;
 	}
 
 	private _removeTrailingSymbols(input: string): string {

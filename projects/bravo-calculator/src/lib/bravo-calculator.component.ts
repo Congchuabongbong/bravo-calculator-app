@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CalculatorInvoker } from './core/command/invoker.service';
 import { CalculatorAction, ICalculatorPayload, ICalculatorState } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
@@ -6,19 +6,26 @@ import { ReducerService } from './core/redux/reducers.service';
 import { Store } from './core/redux/store.service';
 import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
 import { unformattedNumber } from './shared/utils';
-
+import { formatNumber } from './shared/utils/functions.util';
+import { Tooltip, PopupPosition } from '@grapecity/wijmo';
 @Component({
 	selector: 'lib-bravo-calculator',
 	templateUrl: './bravo-calculator.component.html',
 	styleUrls: ['./bravo-calculator.component.scss'],
 	styles: [],
+	providers: [ThousandsSeparatorPipe],
 })
 export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewInit {
 	//**Declaration here */
 	@ViewChild('input', { static: true }) inputRef!: ElementRef<HTMLTextAreaElement>;
+	@ViewChild('calculatorHistories', { static: true }) calculatorHistoriesRef!: ElementRef<HTMLDivElement>;
+	@Input() initEmitValue!: number[];
+	@Input() titleTooltipHistories: string = 'Click đúp chuột vào một số bất kỳ để lấy giá trị số đó cho máy tính';
 	private _receiverBroadcast!: BroadcastChannel;
 	public inputVal: string = '0';
 	private _regexDigit = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
+	private _tooltipHistories!: Tooltip;
+
 	constructor(
 		public calculationStore: Store<ICalculatorState, ICalculatorPayload>,
 		private _calculationReducers: ReducerService<ICalculatorState, CalculatorAction>,
@@ -27,6 +34,10 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	) {
 		this._calculationReducers.register(new CalculatorReducer());
 		this._receiverBroadcast = new BroadcastChannel('BravoCalculatorApp');
+		if (this.initEmitValue) {
+			this.calculatorInvoker.addAction(this.initEmitValue);
+			this.inputRef.nativeElement.value = this.calculatorInvoker.result.toString();
+		}
 	}
 
 	ngAfterViewInit(): void {
@@ -34,6 +45,12 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			this.calculatorInvoker.addAction(event.data);
 			this.inputRef.nativeElement.value = this.calculatorInvoker.result.toString();
 		});
+		this._tooltipHistories = new Tooltip();
+		this._tooltipHistories.setTooltip(this.calculatorHistoriesRef.nativeElement, this.titleTooltipHistories, PopupPosition.BelowRight);
+		this._tooltipHistories.cssClass = 'tooltip-histories';
+		this._tooltipHistories.showDelay = 510;
+		this._tooltipHistories.isAnimated = true;
+		this._tooltipHistories.gap = 0;
 	}
 
 	//**Lifecycle here
@@ -41,59 +58,60 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	ngOnDestroy(): void {
 		this._receiverBroadcast.close();
+		this._tooltipHistories.dispose();
 	}
 
 	//**Handle events
-	public onClickHandleAdd(event: any) {
+	public onClickHandleAdd(event: HTMLTextAreaElement) {
 		this.calculatorInvoker.addAction(unformattedNumber(event.value));
-		event.value = this.calculatorInvoker.result;
+		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
 	}
 
-	public onClickHandleSubtract(event: any) {
+	public onClickHandleSubtract(event: HTMLTextAreaElement) {
 		this.calculatorInvoker.subtractAction(unformattedNumber(event.value));
-		this.calculatorInvoker.isNexOperator && (event.value = this.calculatorInvoker.result);
+		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
 	}
 
-	public onClickHandleMultiply(event: any) {
+	public onClickHandleMultiply(event: HTMLTextAreaElement) {
 		this.calculatorInvoker.multiplyAction(unformattedNumber(event.value));
-		this.calculatorInvoker.isNexOperator && (event.value = this.calculatorInvoker.result);
+		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
 	}
 
-	public onClickHandleDivide(event: any) {
+	public onClickHandleDivide(event: HTMLTextAreaElement) {
 		this.calculatorInvoker.divideAction(unformattedNumber(event.value));
-		this.calculatorInvoker.isNexOperator && (event.value = this.calculatorInvoker.result);
+		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
 	}
 
-	public onClickEndCalculation(event: any) {
+	public onClickEndCalculation(event: HTMLTextAreaElement) {
 		this.calculatorInvoker.endCalculationAction(unformattedNumber(event.value));
-		!this.calculatorInvoker.isDeleteResultDisplay && (event.value = this.calculatorInvoker.result);
+		!this.calculatorInvoker.isDeleteResultDisplay && (event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString()));
 	}
 
-	public onClickNumbersPad(event: any) {
+	public onClickNumbersPad(event: string): void {
 		if (this.inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) this.inputRef.nativeElement.value = '';
 		this.inputRef.nativeElement.value = this.thousandsSeparator.transform((this.inputRef.nativeElement.value += event));
 		this.calculatorInvoker.isDeleteResultDisplay = true;
 		this.calculatorInvoker.isNexOperator = false;
 	}
 
-	public onBackSpace(event: HTMLTextAreaElement) {
+	public onBackSpace(event: HTMLTextAreaElement): void {
 		if (!this.calculatorInvoker.isDeleteResultDisplay) return;
 		if (event.value.length === 1) event.value = '0';
 		event.selectionEnd = event.value.length - 1;
 		//handle backspace
 		let strInput = event.value;
 		if (strInput.length === 1) {
-			return 0;
+			return;
 		}
 		if (strInput.endsWith(' ')) strInput = strInput.trimEnd();
 		strInput = strInput.slice(0, -1);
 		event.value = strInput.trimEnd();
-		return parseInt(strInput);
 	}
 
 	public onClearBtn(event: HTMLTextAreaElement) {
 		event.value = '0';
 		this.calculatorInvoker.clearAction();
+		event.focus();
 	}
 
 	public onDecimalBtn(event: HTMLTextAreaElement) {
@@ -155,9 +173,29 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		if (!(event.target as HTMLElement).classList.contains('histories-expression')) return;
 		const selObj = window.getSelection();
 		if (selObj && this._regexDigit.test(selObj.toString().trim())) {
-			this.inputRef.nativeElement.value = selObj.toString().trim();
+			this.inputRef.nativeElement.value = this.thousandsSeparator.transform(selObj.toString().trim());
 			this.calculatorInvoker.isDeleteResultDisplay = true;
 			this.calculatorInvoker.isNexOperator = false;
 		}
+	}
+
+	private _handleActiveBtn(key: number | string) {
+		if (typeof key === 'number') {
+			switch (key) {
+				case 49:
+					break;
+
+				default:
+					break;
+			}
+		} else {
+		}
+	}
+
+	public generateSuggest(event: HTMLTextAreaElement) {
+		const numberUnformatted = unformattedNumber(event.value);
+		const numberSuggest1x = (numberUnformatted * 10).toString();
+		const numberSuggest3x = (numberUnformatted * 1000).toString();
+		const numberSuggest4x = (numberUnformatted * 10000).toString();
 	}
 }

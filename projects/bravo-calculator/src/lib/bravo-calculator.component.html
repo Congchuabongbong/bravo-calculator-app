@@ -1,5 +1,5 @@
 <div class="calculator-container" tabindex="0" (keydown)="onKeyDownCalculatorContainer($event)" (dblclick)="onHandleClickCalculatorContainer($event)">
-	<div class="calculator-histories" [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''">
+	<div class="calculator-histories" #calculatorHistories [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''">
 		<span class="m-symbol">M</span>
 		<ul class="calculator-histories-expression">
 			<li class="histories-expression" *ngFor="let history of calculatorInvoker.calculationHistories">{{ history }}</li>
@@ -11,12 +11,13 @@
 			<span class="calculator-screen_top-left">
 				<i class="fa-solid fa-ellipsis-vertical"></i>
 			</span>
+
 			<div class="calculator-screen_top-right right">
 				<p class="calculator-screen_currentExpress">{{ calculatorInvoker.currentExpression }}</p>
 			</div>
 		</div>
 		<div class="calculator-screen_bottom">
-			<textarea type="text" [value]="inputVal" class="calculator-input" #input [ngModel]="inputVal | thousandsSeparator" (ngModelChange)="inputVal = $event" aria-multiline="2"></textarea>
+			<textarea type="text" [value]="inputVal" class="calculator-input" #input [ngModel]="inputVal | thousandsSeparator" (ngModelChange)="inputVal = $event" aria-multiline="2" (input)="generateSuggest(input)"></textarea>
 		</div>
 	</div>
 	<!-- Grid -->

@@ -10,11 +10,12 @@ import { HistoryScreenComponent } from './shared/components/history-screen/histo
 import { NumberPadComponent } from './shared/components/number-pad/number-pad.component';
 import { FormsModule } from '@angular/forms';
 import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
-
+import { WjCoreModule } from '@grapecity/wijmo.angular2.core';
+import { WjInputModule } from '@grapecity/wijmo.angular2.input';
 @NgModule({
 	declarations: [BravoCalculatorComponent, DisplayScreenComponent, HistoryScreenComponent, NumberPadComponent, ThousandsSeparatorPipe],
-	imports: [CommonModule, FormsModule],
+	imports: [CommonModule, FormsModule, WjCoreModule, WjInputModule],
 	exports: [BravoCalculatorComponent],
-	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver }, ReducerService, Store, CalculatorInvoker, ThousandsSeparatorPipe],
+	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver }, ReducerService, Store, CalculatorInvoker],
 })
 export class BravoCalculatorModule {}

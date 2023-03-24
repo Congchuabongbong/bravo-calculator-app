@@ -207,7 +207,7 @@
 	}
 
 	&:active {
-		background: linear-gradient(to bottom, #d99e69 0%, #ff991f 50%, #ffbd47 100%);
+		background: linear-gradient(to bottom, #d99e69 0%, #ff991f 50%, #ffbd47 100%) !important;
 	}
 
 	//sort btn by layout
@@ -273,7 +273,9 @@
 	}
 	//column 5
 }
-
+.btn.active {
+	background: linear-gradient(to bottom, #fef6d2 0%, #ffd353 50%, #fef6d2 100%);
+}
 ::ng-deep .wj-tooltip {
 	min-width: 0px !important;
 }

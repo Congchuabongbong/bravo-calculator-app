@@ -22,26 +22,26 @@
 	</div>
 	<!-- Grid -->
 	<div class="calculator-control">
-		<button class="btn btn--numberpad btn--0" (click)="onClickNumbersPad('0')">0</button>
-		<button class="btn btn--numberpad btn--1" (click)="onClickNumbersPad('1')">1</button>
-		<button class="btn btn--numberpad btn--2" (click)="onClickNumbersPad('2')">2</button>
-		<button class="btn btn--numberpad btn--3" (click)="onClickNumbersPad('3')">3</button>
-		<button class="btn btn--numberpad btn--4" (click)="onClickNumbersPad('4')">4</button>
-		<button class="btn btn--numberpad btn--5" (click)="onClickNumbersPad('5')">5</button>
-		<button class="btn btn--numberpad btn--6" (click)="onClickNumbersPad('6')">6</button>
-		<button class="btn btn--numberpad btn--7" (click)="onClickNumbersPad('7')">7</button>
-		<button class="btn btn--numberpad btn--8" (click)="onClickNumbersPad('8')">8</button>
-		<button class="btn btn--numberpad btn--9" (click)="onClickNumbersPad('9')">9</button>
+		<button #btn class="btn btn--numberpad btn--0" (click)="onClickNumbersPadBtn('0')">0</button>
+		<button #btn class="btn btn--numberpad btn--1" (click)="onClickNumbersPadBtn('1')">1</button>
+		<button #btn class="btn btn--numberpad btn--2" (click)="onClickNumbersPadBtn('2')">2</button>
+		<button #btn class="btn btn--numberpad btn--3" (click)="onClickNumbersPadBtn('3')">3</button>
+		<button #btn class="btn btn--numberpad btn--4" (click)="onClickNumbersPadBtn('4')">4</button>
+		<button #btn class="btn btn--numberpad btn--5" (click)="onClickNumbersPadBtn('5')">5</button>
+		<button #btn class="btn btn--numberpad btn--6" (click)="onClickNumbersPadBtn('6')">6</button>
+		<button #btn class="btn btn--numberpad btn--7" (click)="onClickNumbersPadBtn('7')">7</button>
+		<button #btn class="btn btn--numberpad btn--8" (click)="onClickNumbersPadBtn('8')">8</button>
+		<button #btn class="btn btn--numberpad btn--9" (click)="onClickNumbersPadBtn('9')">9</button>
 		<!--  -->
-		<button class="btn btn--decimal" (click)="onDecimalBtn(input)">.</button>
-		<button class="btn btn--operator btn--abs" (click)="onAbs(input)"><i class="fa-solid fa-plus-minus"></i></button>
-		<button class="btn btn--operator btn--divide" (click)="onClickHandleDivide(input)"><i class="fa-solid fa-divide"></i></button>
-		<button class="btn btn--operator btn--multiple" (click)="onClickHandleMultiply(input)">x</button>
-		<button class="btn btn--operator btn--subtract" (click)="onClickHandleSubtract(input)">-</button>
-		<button class="btn btn--operator btn--add" (click)="onClickHandleAdd(input)">+</button>
-		<button class="btn btn--clear" (click)="onClearBtn(input)">C</button>
-		<button class="btn btn--operator btn--backspace" (click)="onBackSpace(input)" #btnBackspace><i class="fa-solid fa-arrow-left"></i></button>
-		<button class="btn btn--operator btn--percent"><i class="fa-light fa-percent"></i></button>
-		<button class="btn btn--equal" (click)="onClickEndCalculation(input)">=</button>
+		<button #btn class="btn btn--decimal" (click)="onDecimalBtn(input)">.</button>
+		<button #btn class="btn btn--operator btn--abs" (click)="onAbsBtn(input)"><i class="fa-solid fa-plus-minus"></i></button>
+		<button #btn class="btn btn--operator btn--divide" (click)="onClickHandleDivideBtn(input)"><i class="fa-solid fa-divide"></i></button>
+		<button #btn class="btn btn--operator btn--multiple" (click)="onClickHandleMultiplyBtn(input)">x</button>
+		<button #btn class="btn btn--operator btn--subtract" (click)="onClickHandleSubtractBtn(input)">-</button>
+		<button #btn class="btn btn--operator btn--add" (click)="onClickHandleAddBtn(input)">+</button>
+		<button #btn class="btn btn--clear" (click)="onClearBtn(input)">C</button>
+		<button #btn class="btn btn--operator btn--backspace" (click)="onBackSpaceBtn(input)" #btnBackspace><i class="fa-solid fa-arrow-left"></i></button>
+		<button #btn class="btn btn--operator btn--percent"><i class="fa-light fa-percent"></i></button>
+		<button #btn class="btn btn--equal" (click)="onClickEndCalculationBtn(input)">=</button>
 	</div>
 </div>

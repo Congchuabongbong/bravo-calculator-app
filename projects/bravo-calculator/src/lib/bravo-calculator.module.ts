@@ -8,13 +8,13 @@ import { calculatorReceiver, initialStateCalculator, INITIAL_STATE_CALCULATOR, R
 import { DisplayScreenComponent } from './shared/components/display-screen/display-screen.component';
 import { HistoryScreenComponent } from './shared/components/history-screen/history-screen.component';
 import { NumberPadComponent } from './shared/components/number-pad/number-pad.component';
-import { FormsModule } from '@angular/forms'; // import FormsModule hoặc ReactiveFormsModule
+import { FormsModule } from '@angular/forms';
 import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
 
 @NgModule({
 	declarations: [BravoCalculatorComponent, DisplayScreenComponent, HistoryScreenComponent, NumberPadComponent, ThousandsSeparatorPipe],
 	imports: [CommonModule, FormsModule],
 	exports: [BravoCalculatorComponent],
-	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver }, ReducerService, Store, CalculatorInvoker],
+	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver }, ReducerService, Store, CalculatorInvoker, ThousandsSeparatorPipe],
 })
 export class BravoCalculatorModule {}

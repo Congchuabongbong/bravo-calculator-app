@@ -51,7 +51,7 @@ export class CalculatorInvoker {
 	}
 
 	//!!test display qua store
-	getCurrentExpression() {
+	get currentExpression() {
 		return this._receiver.expressionStringBuilder;
 	}
 

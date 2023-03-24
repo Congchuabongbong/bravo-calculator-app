@@ -110,6 +110,7 @@ export class CalculatorReceiver {
 		this._expressionBuilder = '';
 		this._expressionEvalBuilder = '';
 		this._currentOperator = EOperatorString.Addition;
+		this._calculationHistories = [];
 		if (isReset) {
 			this.result = 0;
 			this._calculationHistories = [];
@@ -242,6 +243,7 @@ export class CalculatorReceiver {
 	private _executeExpression(express: string) {
 		if (this._validateExpression(express)) {
 			this.result = eval(express);
+
 			this.isDeleteResultDisplay = false;
 		} else {
 			alert(`Expression invalid: ${express}`);

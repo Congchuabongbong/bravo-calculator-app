@@ -1,8 +1,13 @@
-export function formatNumberWithSpaces(number: string): string {
-	if (isNaN(parseFloat(number))) throw new Error(`Invalid number: ${number}`);
-	const formattedNumber = parseFloat(number).toLocaleString('en-US', { useGrouping: true });
-	const formattedNumberWithSpaces = formattedNumber.replace(/,/g, ' ');
-	return formattedNumberWithSpaces;
+export function formatNumber(numberStr: string, symbol: string = ' '): string {
+	let formattedStr = '';
+	for (let i = numberStr.length - 1; i >= 0; i--) {
+		const char = numberStr[i];
+		formattedStr = char + formattedStr;
+		if ((numberStr.length - i) % 3 === 0 && i > 0) {
+			formattedStr = symbol + formattedStr;
+		}
+	}
+	return formattedStr;
 }
 
 export function unformattedNumber(formattedNumber: string): number {

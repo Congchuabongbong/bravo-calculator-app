@@ -26,3 +26,11 @@ export interface ICalculatorState {
 }
 
 export interface ICalculatorPayload extends ICalculatorState {}
+
+export type OptionsMenu = {
+	descCmd: string;
+	keyCmd: 'Escape' | 'Enter';
+	optionsCmd: OptionCmd[];
+};
+
+export type OptionCmd = { name: string; value: boolean; group: number };

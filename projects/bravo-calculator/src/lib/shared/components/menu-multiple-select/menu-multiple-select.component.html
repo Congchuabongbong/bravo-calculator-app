@@ -1,0 +1,27 @@
+<!-- <div class="multiselect">
+    <b class="option-name">Tùy chọn khi bấm phím Enter</b>
+    <ul class="options">
+        <li *ngFor="let item of options" (click)="toggleItem(item); $event.stopPropagation();">
+
+            <div class="box-checked"> <span *ngIf="isSelected(item)" class="checked"><i
+                        class="fa-solid fa-check"></i></span></div>
+            <span class="option-title">{{item}}</span>
+        </li>
+    </ul>
+</div> -->
+
+
+<div class="menu-container">
+    <div class="box-cmd" *ngFor="let cmd of options">
+        <span class="cmd-desc">{{cmd.descCmd}}</span>
+        <ul class="options-command">
+            <li class="option" *ngFor="let option of cmd.optionsCmd"
+                (click)="toggleItem(option); $event.stopPropagation();">
+                <div class="box-checked">
+                    <span *ngIf="option.value" class="checked"><i class="fa-solid fa-check"></i></span>
+                </div>
+                <span class="title-option">{{option.name}}</span>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -1,47 +1,63 @@
-<div class="calculator-container" tabindex="0" (keydown)="onKeyDownCalculatorContainer($event)" (dblclick)="onHandleClickCalculatorContainer($event)">
-	<div class="calculator-histories" #calculatorHistories [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''">
-		<span class="m-symbol">M</span>
-		<ul class="calculator-histories-expression">
-			<li class="histories-expression" *ngFor="let history of calculatorInvoker.calculationHistories">{{ history }}</li>
-		</ul>
-	</div>
+<div class="calculator-container" tabindex="0" (keydown)="onKeyDownCalculatorContainer($event)"
+    (dblclick)="onHandleClickCalculatorContainer($event)">
+    <div class="calculator-histories" #calculatorHistories
+        [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''">
+        <span class="m-symbol">M</span>
+        <ul class="calculator-histories-expression">
+            <li class="histories-expression" *ngFor="let history of calculatorInvoker.calculationHistories">{{ history
+                }}</li>
+        </ul>
+    </div>
 
-	<div class="calculator-screen">
-		<div class="calculator-screen_top">
-			<span class="calculator-screen_top-left">
-				<i class="fa-solid fa-ellipsis-vertical"></i>
-			</span>
+    <div class="calculator-screen">
+        <div class="calculator-screen_top">
+            <span class="calculator-screen_top-left" #btnMenu clickMenu [menuOption]="menu">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </span>
 
-			<div class="calculator-screen_top-right right">
-				<p class="calculator-screen_currentExpress">{{ calculatorInvoker.currentExpression }}</p>
-			</div>
-		</div>
-		<div class="calculator-screen_bottom">
-			<textarea type="text" [value]="inputVal" class="calculator-input" #input [ngModel]="inputVal | thousandsSeparator" (ngModelChange)="inputVal = $event" aria-multiline="2" (input)="generateSuggest(input)"></textarea>
-		</div>
-	</div>
-	<!-- Grid -->
-	<div class="calculator-control">
-		<button #btn class="btn btn--numberpad btn--0" (click)="onClickNumbersPadBtn('0')">0</button>
-		<button #btn class="btn btn--numberpad btn--1" (click)="onClickNumbersPadBtn('1')">1</button>
-		<button #btn class="btn btn--numberpad btn--2" (click)="onClickNumbersPadBtn('2')">2</button>
-		<button #btn class="btn btn--numberpad btn--3" (click)="onClickNumbersPadBtn('3')">3</button>
-		<button #btn class="btn btn--numberpad btn--4" (click)="onClickNumbersPadBtn('4')">4</button>
-		<button #btn class="btn btn--numberpad btn--5" (click)="onClickNumbersPadBtn('5')">5</button>
-		<button #btn class="btn btn--numberpad btn--6" (click)="onClickNumbersPadBtn('6')">6</button>
-		<button #btn class="btn btn--numberpad btn--7" (click)="onClickNumbersPadBtn('7')">7</button>
-		<button #btn class="btn btn--numberpad btn--8" (click)="onClickNumbersPadBtn('8')">8</button>
-		<button #btn class="btn btn--numberpad btn--9" (click)="onClickNumbersPadBtn('9')">9</button>
-		<!--  -->
-		<button #btn class="btn btn--decimal" (click)="onDecimalBtn(input)">.</button>
-		<button #btn class="btn btn--operator btn--abs" (click)="onAbsBtn(input)"><i class="fa-solid fa-plus-minus"></i></button>
-		<button #btn class="btn btn--operator btn--divide" (click)="onClickHandleDivideBtn(input)"><i class="fa-solid fa-divide"></i></button>
-		<button #btn class="btn btn--operator btn--multiple" (click)="onClickHandleMultiplyBtn(input)">x</button>
-		<button #btn class="btn btn--operator btn--subtract" (click)="onClickHandleSubtractBtn(input)">-</button>
-		<button #btn class="btn btn--operator btn--add" (click)="onClickHandleAddBtn(input)">+</button>
-		<button #btn class="btn btn--clear" (click)="onClearBtn(input)">C</button>
-		<button #btn class="btn btn--operator btn--backspace" (click)="onBackSpaceBtn(input)" #btnBackspace><i class="fa-solid fa-arrow-left"></i></button>
-		<button #btn class="btn btn--operator btn--percent"><i class="fa-light fa-percent"></i></button>
-		<button #btn class="btn btn--equal" (click)="onClickEndCalculationBtn(input)">=</button>
-	</div>
+            <div class="calculator-screen_top-right right">
+                <p class="calculator-screen_currentExpress">{{ calculatorInvoker.currentExpression }}</p>
+                <!-- <ul class="calculator-screen_list-suggest">
+					<li class="input-suggest"><button class="btn-suggest">1000</button></li>
+					<li class="input-suggest"><button class="btn-suggest">100000</button></li>
+					<li class="input-suggest"><button class="btn-suggest">1000000000000</button></li>
+				</ul> -->
+            </div>
+        </div>
+        <div class="calculator-screen_bottom">
+            <textarea type="text" [value]="inputVal" class="calculator-input" #input
+                [ngModel]="inputVal | thousandsSeparator" (ngModelChange)="inputVal = $event" aria-multiline="2"
+                (input)="onHandleInput(input)"></textarea>
+        </div>
+    </div>
+    <!-- Grid -->
+    <div class="calculator-control">
+        <button #btn class="btn btn--numberpad btn--0" (click)="onClickNumbersPadBtn('0')">0</button>
+        <button #btn class="btn btn--numberpad btn--1" (click)="onClickNumbersPadBtn('1')">1</button>
+        <button #btn class="btn btn--numberpad btn--2" (click)="onClickNumbersPadBtn('2')">2</button>
+        <button #btn class="btn btn--numberpad btn--3" (click)="onClickNumbersPadBtn('3')">3</button>
+        <button #btn class="btn btn--numberpad btn--4" (click)="onClickNumbersPadBtn('4')">4</button>
+        <button #btn class="btn btn--numberpad btn--5" (click)="onClickNumbersPadBtn('5')">5</button>
+        <button #btn class="btn btn--numberpad btn--6" (click)="onClickNumbersPadBtn('6')">6</button>
+        <button #btn class="btn btn--numberpad btn--7" (click)="onClickNumbersPadBtn('7')">7</button>
+        <button #btn class="btn btn--numberpad btn--8" (click)="onClickNumbersPadBtn('8')">8</button>
+        <button #btn class="btn btn--numberpad btn--9" (click)="onClickNumbersPadBtn('9')">9</button>
+        <!--  -->
+        <button #btn class="btn btn--decimal" (click)="onDecimalBtn(input)">.</button>
+        <button #btn class="btn btn--operator btn--abs" (click)="onAbsBtn(input)"><i
+                class="fa-solid fa-plus-minus"></i></button>
+        <button #btn class="btn btn--operator btn--divide" (click)="onClickHandleDivideBtn(input)"><i
+                class="fa-solid fa-divide"></i></button>
+        <button #btn class="btn btn--operator btn--multiple" (click)="onClickHandleMultiplyBtn(input)">x</button>
+        <button #btn class="btn btn--operator btn--subtract" (click)="onClickHandleSubtractBtn(input)">-</button>
+        <button #btn class="btn btn--operator btn--add" (click)="onClickHandleAddBtn(input)">+</button>
+        <button #btn class="btn btn--clear" (click)="onClearBtn(input)">C</button>
+        <button #btn class="btn btn--operator btn--backspace" (click)="onBackSpaceBtn(input)" #btnBackspace><i
+                class="fa-solid fa-arrow-left"></i></button>
+        <button #btn class="btn btn--operator btn--percent"><i class="fa-light fa-percent"></i></button>
+        <button #btn class="btn btn--equal" (click)="onClickEndCalculationBtn(input)">=</button>
+    </div>
 </div>
+<!-- Menu -->
+<menu-multiple-select #menu [options]="menuCommandOptions" (selectionChange)="onSelectionChange($event)">
+</menu-multiple-select>

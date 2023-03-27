@@ -1,13 +1,13 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ComponentFactoryResolver, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
+import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { CalculatorAction, ICalculatorPayload, ICalculatorState } from './core/data-type/type';
+import { CalculatorAction, ICalculatorPayload, ICalculatorState, OptionsMenu } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
 import { ReducerService } from './core/redux/reducers.service';
 import { Store } from './core/redux/store.service';
+import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
 import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
 import { unformattedNumber } from './shared/utils';
-import { formatNumber } from './shared/utils/functions.util';
-import { Tooltip, PopupPosition } from '@grapecity/wijmo';
 @Component({
 	selector: 'lib-bravo-calculator',
 	templateUrl: './bravo-calculator.component.html',
@@ -18,6 +18,8 @@ import { Tooltip, PopupPosition } from '@grapecity/wijmo';
 export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewInit {
 	//**Declaration here */
 	@ViewChild('input', { static: true }) inputRef!: ElementRef<HTMLTextAreaElement>;
+
+	@ViewChild('btnMenu', { static: true }) btnMenuRef!: ElementRef<HTMLSpanElement>;
 	@ViewChild('calculatorHistories', { static: true }) calculatorHistoriesRef!: ElementRef<HTMLDivElement>;
 	@ViewChildren('btn') btnRef!: QueryList<ElementRef<HTMLButtonElement>>;
 	@Input() titleTooltipHistories: string = 'Click đúp chuột vào một số bất kỳ để lấy giá trị số đó cho máy tính';
@@ -47,11 +49,44 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		{ key: 'abs', class: 'btn--abs' },
 	];
 
+	@Input('menuOptions') menuCommandOptions: OptionsMenu[] = [
+		{
+			descCmd: 'Tùy chọn khi bấm phím Enter',
+			keyCmd: 'Enter',
+			optionsCmd: [
+				{ value: true, name: 'Không', group: 0 },
+				{ value: false, name: 'Xóa tất cả', group: 1 },
+				{ value: false, name: 'Xóa', group: 1 },
+				{ value: false, name: 'Thu nhỏ máy tính', group: 2 },
+				{ value: false, name: 'Chuyển cửa sổ', group: 2 },
+				{ value: false, name: 'Tính', group: 3 },
+				{ value: false, name: 'Tính và dán kết quả', group: 3 },
+			],
+		},
+		{
+			descCmd: 'Tùy chọn khi bấm phím Esc',
+			keyCmd: 'Escape',
+			optionsCmd: [
+				{ value: true, name: 'Không', group: 0 },
+				{ value: false, name: 'Xóa tất cả', group: 1 },
+				{ value: false, name: 'Xóa', group: 1 },
+				{ value: false, name: 'Thu nhỏ máy tính', group: 2 },
+				{ value: false, name: 'Chuyển cửa sổ', group: 2 },
+				{ value: false, name: 'Tính', group: 3 },
+				{ value: false, name: 'Tính và dán kết quả', group: 3 },
+			],
+		},
+	];
+
+	public menuMultipleSelect!: MenuMultipleSelectComponent;
+	//**Constructor here */
 	constructor(
+		private _elRef: ElementRef,
 		public calculationStore: Store<ICalculatorState, ICalculatorPayload>,
 		private _calculationReducers: ReducerService<ICalculatorState, CalculatorAction>,
 		public calculatorInvoker: CalculatorInvoker,
 		private thousandsSeparator: ThousandsSeparatorPipe,
+		private componentFactoryResolver: ComponentFactoryResolver,
 	) {
 		this._calculationReducers.register(new CalculatorReducer());
 		this._receiverBroadcast = new BroadcastChannel('BravoCalculatorApp');
@@ -59,6 +94,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			this.calculatorInvoker.addAction(this.initEmitValue);
 			this.inputRef.nativeElement.value = this.calculatorInvoker.result.toString();
 		}
+		// const newWindow = window.open('http://localhost:4200/', 'Example', 'width=500,height=300');
 	}
 
 	ngAfterViewInit(): void {
@@ -66,13 +102,8 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			this.calculatorInvoker.addAction(event.data);
 			this.inputRef.nativeElement.value = this.calculatorInvoker.result.toString();
 		});
-		this._tooltipHistories = new Tooltip();
-		this._tooltipHistories.setTooltip(this.calculatorHistoriesRef.nativeElement, this.titleTooltipHistories, PopupPosition.BelowRight);
-		this._tooltipHistories.cssClass = 'tooltip-histories';
-		this._tooltipHistories.showDelay = 510;
-		this._tooltipHistories.isAnimated = true;
-		this._tooltipHistories.gap = 0;
 		this._handleActiveBtn('Escape');
+		this._initTooltip();
 	}
 
 	//**Lifecycle here
@@ -81,6 +112,15 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	ngOnDestroy(): void {
 		this._receiverBroadcast.close();
 		this._tooltipHistories.dispose();
+	}
+
+	private _initTooltip(): void {
+		this._tooltipHistories = new Tooltip();
+		this._tooltipHistories.setTooltip(this.calculatorHistoriesRef.nativeElement, this.titleTooltipHistories, PopupPosition.BelowRight);
+		this._tooltipHistories.cssClass = 'tooltip-histories';
+		this._tooltipHistories.showDelay = 510;
+		this._tooltipHistories.isAnimated = true;
+		this._tooltipHistories.gap = 0;
 	}
 
 	//**Handle events
@@ -202,6 +242,8 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		}
 	}
 
+	onHandleInput(event: HTMLTextAreaElement) {}
+
 	public onHandleClickCalculatorContainer(event: MouseEvent): void {
 		if (!(event.target as HTMLElement).classList.contains('histories-expression')) return;
 		const selObj = window.getSelection();
@@ -227,9 +269,13 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	public generateSuggest(event: HTMLTextAreaElement) {
-		const numberUnformatted = unformattedNumber(event.value);
+		const numberUnformatted = unformattedNumber(event.value.trim());
 		const numberSuggest1x = (numberUnformatted * 10).toString();
 		const numberSuggest3x = (numberUnformatted * 1000).toString();
 		const numberSuggest4x = (numberUnformatted * 10000).toString();
+	}
+
+	public onSelectionChange(e: any) {
+		console.log(e);
 	}
 }

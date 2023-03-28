@@ -32,3 +32,9 @@ export enum EInputAction {
 	Select,
 	Click,
 }
+
+export enum EKeyCmdOption {
+	Escape,
+	Enter,
+	Other,
+}

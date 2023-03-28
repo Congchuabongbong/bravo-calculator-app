@@ -1,4 +1,4 @@
-import { EInputAction, EOperatorType } from './enum';
+import { EInputAction, EKeyCmdOption, EOperatorType } from './enum';
 
 export interface IReducer<S, P> {
 	reduce(state: S, payload: P): S;
@@ -29,7 +29,7 @@ export interface ICalculatorPayload extends ICalculatorState {}
 
 export type OptionsMenu = {
 	descCmd: string;
-	keyCmd: 'Escape' | 'Enter';
+	keyCmd: EKeyCmdOption;
 	optionsCmd: OptionCmd[];
 };
 

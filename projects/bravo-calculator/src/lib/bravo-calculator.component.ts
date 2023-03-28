@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, ComponentFactoryResolver, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
 import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { CalculatorAction, ICalculatorPayload, ICalculatorState, OptionsMenu } from './core/data-type/type';
+import { EKeyCmdOption } from './core/data-type/enum';
+import { CalculatorAction, ICalculatorPayload, ICalculatorState, OptionCmd, OptionsMenu } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
 import { ReducerService } from './core/redux/reducers.service';
 import { Store } from './core/redux/store.service';
@@ -28,6 +29,11 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	public inputVal: string = '0';
 	private readonly _regexDigit = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
 	private _tooltipHistories!: Tooltip;
+
+	private _selectedOptionEscCmd!: OptionCmd[];
+	private _selectedOptionEnterCmd!: OptionCmd[];
+	private _selectedOptionOtherCmd!: OptionCmd[];
+
 	private readonly _btnMap = [
 		{ key: '1', class: 'btn--1' },
 		{ key: '2', class: 'btn--2' },
@@ -52,7 +58,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	@Input('menuOptions') menuCommandOptions: OptionsMenu[] = [
 		{
 			descCmd: 'Tùy chọn khi bấm phím Enter',
-			keyCmd: 'Enter',
+			keyCmd: EKeyCmdOption.Enter,
 			optionsCmd: [
 				{ value: true, name: 'Không', group: 0 },
 				{ value: false, name: 'Xóa tất cả', group: 1 },
@@ -65,16 +71,21 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		},
 		{
 			descCmd: 'Tùy chọn khi bấm phím Esc',
-			keyCmd: 'Escape',
+			keyCmd: EKeyCmdOption.Escape,
 			optionsCmd: [
-				{ value: true, name: 'Không', group: 0 },
-				{ value: false, name: 'Xóa tất cả', group: 1 },
+				{ value: false, name: 'Không', group: 0 },
+				{ value: true, name: 'Xóa tất cả', group: 1 },
 				{ value: false, name: 'Xóa', group: 1 },
 				{ value: false, name: 'Thu nhỏ máy tính', group: 2 },
 				{ value: false, name: 'Chuyển cửa sổ', group: 2 },
 				{ value: false, name: 'Tính', group: 3 },
 				{ value: false, name: 'Tính và dán kết quả', group: 3 },
 			],
+		},
+		{
+			descCmd: 'Các tùy chọn khác',
+			keyCmd: EKeyCmdOption.Other,
+			optionsCmd: [{ value: true, name: 'Tự động tính khi chọn số', group: 0 }],
 		},
 	];
 
@@ -275,7 +286,19 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		const numberSuggest4x = (numberUnformatted * 10000).toString();
 	}
 
-	public onSelectionChange(e: any) {
-		console.log(e);
+	public onSelectionChange(e: OptionsMenu[]) {
+		e.forEach(cmd => {
+			switch (cmd.keyCmd) {
+				case EKeyCmdOption.Enter:
+					this._selectedOptionEnterCmd = cmd.optionsCmd.filter(opt => opt.value === true);
+					break;
+				case EKeyCmdOption.Escape:
+					this._selectedOptionEscCmd = cmd.optionsCmd.filter(opt => opt.value === true);
+					break;
+				case EKeyCmdOption.Other:
+					this._selectedOptionOtherCmd = cmd.optionsCmd.filter(opt => opt.value === true);
+					break;
+			}
+		});
 	}
 }

@@ -12,11 +12,11 @@
 
 
 <div class="menu-container">
-    <div class="box-cmd" *ngFor="let cmd of options">
-        <span class="cmd-desc">{{cmd.descCmd}}</span>
+    <div class="box-cmd" *ngFor="let cmd of options; let index = index">
+        <span class="cmd-desc">{{cmd.descCmd}}:</span>
         <ul class="options-command">
             <li class="option" *ngFor="let option of cmd.optionsCmd"
-                (click)="toggleItem(option); $event.stopPropagation();">
+                (click)="toggleItem(cmd,option); $event.stopPropagation();">
                 <div class="box-checked">
                     <span *ngIf="option.value" class="checked"><i class="fa-solid fa-check"></i></span>
                 </div>
@@ -24,4 +24,5 @@
             </li>
         </ul>
     </div>
+
 </div>

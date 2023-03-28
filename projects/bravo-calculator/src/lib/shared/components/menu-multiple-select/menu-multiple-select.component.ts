@@ -1,4 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, OnDestroy } from '@angular/core';
+import { EKeyCmdOption } from '../../../core/data-type/enum';
 import { OptionCmd, OptionsMenu } from '../../../core/data-type/type';
 
 @Component({
@@ -8,12 +9,20 @@ import { OptionCmd, OptionsMenu } from '../../../core/data-type/type';
 })
 export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 	//*Declaration here
-	@Input() options: OptionsMenu[] = [];
+	@Input() set options(value: OptionsMenu[]) {
+		this._options = value;
+	}
+	get options() {
+		return this._options;
+	}
+
+	private _options!: OptionsMenu[];
+
 	@Output() selectionChange = new EventEmitter();
 	@Input() optionStyles!: {};
 	@Input() className!: string[];
 
-	constructor(private _el: ElementRef, private _renderer: Renderer2) {}
+	constructor(private _el: ElementRef<HTMLElement>, private _renderer: Renderer2) {}
 
 	//*Life cycle here
 	ngOnDestroy(): void {}
@@ -22,27 +31,74 @@ export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 		this._renderer.addClass(this._el.nativeElement, 'active');
 	}
 
-	public selectedItems: any[] = [];
 	public get hostElement(): HTMLElement {
 		return this._el.nativeElement;
 	}
 
-	public toggle() {
+	public toggle(): void {
 		this._el.nativeElement.classList.toggle('active');
 	}
 
-	public toggleItem(item: OptionCmd) {
-		item.value = !item.value;
-		// const index = this.selectedItems.indexOf(item);
-		// if (index === -1) {
-		// 	this.selectedItems.push(item);
-		// } else {
-		// 	this.selectedItems.splice(index, 1);
-		// }
+	public toggleItem(cmd: OptionsMenu, item: OptionCmd): void {
+		this._mergeSelectOptionCmd(cmd, { ...item, value: !item.value });
 		this.selectionChange.emit(this.options);
 	}
 
-	public isSelected(item: any) {
-		return this.selectedItems.indexOf(item) !== -1;
+	private _mergeSelectOptionCmd(cmd: OptionsMenu, optionCmd: OptionCmd): void {
+		let selectedOptions: OptionCmd[] = cmd.optionsCmd.filter(opt => opt.value === true);
+		let defaultOpt = cmd.optionsCmd.find(opt => opt.group === 0) as OptionCmd;
+		if (optionCmd.group === 0 || selectedOptions.length === 0) {
+			this.reset(cmd);
+		} else {
+			if (selectedOptions.length === 1) {
+				if (optionCmd.value) {
+					let currentOptExist = selectedOptions[0];
+					if (currentOptExist.group === 0 || (currentOptExist.group === optionCmd.group && currentOptExist.name !== optionCmd.name)) {
+						this.updateCheckedValue(cmd, optionCmd, currentOptExist);
+					} else {
+						this._canMerge(currentOptExist, optionCmd) && this.updateCheckedValue(cmd, optionCmd);
+					}
+				} else {
+					let exitsOpt = selectedOptions.find(op => op.name === optionCmd.name);
+					if (exitsOpt) {
+						this.updateCheckedValue(cmd, defaultOpt, optionCmd);
+					}
+				}
+			} else if (selectedOptions.length === 2) {
+				if (optionCmd.value) {
+					let optSameGroup = selectedOptions.find(opt => opt.group === optionCmd.group && opt.name !== optionCmd.name);
+					if (optSameGroup) this.updateCheckedValue(cmd, optionCmd, optSameGroup);
+					else {
+						selectedOptions.forEach(opt => {
+							!this._canMerge(opt, optionCmd) && this.updateCheckedValue(cmd, opt, optionCmd);
+						});
+					}
+				} else {
+					let exitsOpt = selectedOptions.find(op => op.name === optionCmd.name);
+					if (exitsOpt) {
+						this.updateCheckedValue(cmd, optionCmd);
+					}
+				}
+			}
+		}
+	}
+
+	private updateCheckedValue(cmd: OptionsMenu, optionCmd: OptionCmd, previousOpt?: OptionCmd) {
+		cmd.optionsCmd.forEach(opt => {
+			if (previousOpt && opt.name === previousOpt.name) opt.value = !opt.value;
+			if (opt.name === optionCmd.name) opt.value = !opt.value;
+		});
+	}
+	private reset(cmd: OptionsMenu) {
+		cmd.optionsCmd.forEach(opt => {
+			if (opt.group === 0) opt.value = true;
+			else opt.value = false;
+		});
+	}
+
+	private _canMerge(optCmdExist: OptionCmd, currentOptCmd: OptionCmd): boolean {
+		if ((optCmdExist.group === 1 && currentOptCmd.group === 2) || (optCmdExist.group === 2 && currentOptCmd.group === 1)) return true;
+		else if ((optCmdExist.group === 2 && currentOptCmd.group === 3) || (optCmdExist.group === 3 && currentOptCmd.group === 2)) return true;
+		return false;
 	}
 }

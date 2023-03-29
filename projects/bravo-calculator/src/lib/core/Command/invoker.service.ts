@@ -5,10 +5,10 @@ import { CalculatorAction, ICalculatorPayload, ICalculatorState, ICommand } from
 import { Store } from '../redux/store.service';
 import { AddCommand } from './concrete-command';
 import { DivideCommand } from './concrete-command/divide.command.class';
-import { CalculatorReceiver } from './receiver';
-import { SubtractCommand } from './concrete-command/subtract.command.class';
-import { MultiplyCommand } from './concrete-command/multiply.command.class';
 import { EqualCommand } from './concrete-command/equal.command.class';
+import { MultiplyCommand } from './concrete-command/multiply.command.class';
+import { SubtractCommand } from './concrete-command/subtract.command.class';
+import { CalculatorReceiver } from './receiver';
 
 @Injectable()
 export class CalculatorInvoker {
@@ -50,12 +50,10 @@ export class CalculatorInvoker {
 		//dispatch store update
 	}
 
-	//!!test display qua store
 	get currentExpression() {
 		return this._receiver.expressionStringBuilder;
 	}
 
-	//!!test
 	get calculationHistories(): string[] {
 		return this._receiver.calculationHistories;
 	}

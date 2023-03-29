@@ -26,7 +26,7 @@ export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 
 	//*Life cycle here
 	ngOnDestroy(): void {
-		this.selectionChange.unsubscribe();
+		this.selectionChange.complete();
 	}
 
 	ngOnInit(): void {

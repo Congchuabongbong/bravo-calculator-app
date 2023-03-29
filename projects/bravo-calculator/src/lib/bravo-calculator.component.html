@@ -16,7 +16,8 @@
             </span>
 
             <div class="calculator-screen_top-right right">
-                <p class="calculator-screen_currentExpress">{{ calculatorInvoker.currentExpression }}</p>
+                <p class="calculator-screen_currentExpress"
+                    [innerHtml]=" calculatorInvoker.currentExpression  | randomColorExpression "></p>
                 <!-- <ul class="calculator-screen_list-suggest">
 					<li class="input-suggest"><button class="btn-suggest">1000</button></li>
 					<li class="input-suggest"><button class="btn-suggest">100000</button></li>

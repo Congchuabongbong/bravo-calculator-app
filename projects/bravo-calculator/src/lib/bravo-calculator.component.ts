@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/command/invoker.service';
 import { EKeyCmdOption, EOptionCmd } from './core/data-type/enum';
@@ -21,7 +22,6 @@ import { unformattedNumber } from './shared/utils';
 export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewInit {
 	//**Declaration here */
 	@ViewChild('input', { static: true }) inputRef!: ElementRef<HTMLTextAreaElement>;
-
 	@ViewChild('btnMenu', { static: true }) btnMenuRef!: ElementRef<HTMLSpanElement>;
 	@ViewChild('calculatorHistories', { static: true }) calculatorHistoriesRef!: ElementRef<HTMLDivElement>;
 	@ViewChildren('btn') btnRef!: QueryList<ElementRef<HTMLButtonElement>>;
@@ -82,6 +82,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		private _calculationReducers: ReducerService<ICalculatorState, CalculatorAction>,
 		public calculatorInvoker: CalculatorInvoker,
 		private thousandsSeparator: ThousandsSeparatorPipe,
+		private sanitizer: DomSanitizer,
 	) {
 		this._calculationReducers.register(new CalculatorReducer());
 		this._receiverBroadcast = new BroadcastChannel('BravoCalculatorApp');

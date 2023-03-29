@@ -1,6 +1,6 @@
+import { Injectable } from '@angular/core';
 import { EOperatorEVal, EOperatorString } from '../data-type/enum';
 import { ObjRequestCommand } from '../data-type/type';
-import { Injectable } from '@angular/core';
 
 @Injectable()
 export class CalculatorReceiver {

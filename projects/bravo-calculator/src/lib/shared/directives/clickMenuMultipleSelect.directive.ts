@@ -1,5 +1,5 @@
 import { PopupPosition } from '@grapecity/wijmo';
-import { Directive, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, Renderer2 } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, Renderer2 } from '@angular/core';
 import { MenuMultipleSelectComponent } from '../components/menu-multiple-select/menu-multiple-select.component';
 
 @Directive({ selector: '[clickMenu]' })
@@ -16,7 +16,6 @@ export class ClickMenuSelectionDirective implements OnInit {
 
 	@HostListener('document:click', ['$event'])
 	onClick(event: any) {
-		event.preventDefault();
 		if (this.el.nativeElement.contains(event.target)) {
 			this.menuOption.toggle();
 			return;
@@ -28,6 +27,7 @@ export class ClickMenuSelectionDirective implements OnInit {
 
 	@HostListener('window:resize', ['$event'])
 	onResize(event: any) {
+		event.preventDefault();
 		this._clearTimeout();
 		this._debounceTimeout = setTimeout(() => {
 			this._setPosition();

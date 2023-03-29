@@ -13,9 +13,10 @@ import { WjInputModule } from '@grapecity/wijmo.angular2.input';
 
 import { ClickMenuSelectionDirective } from './shared/directives/clickMenuMultipleSelect.directive';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
+import { RandomColorExpression } from './shared/pipes/randomColoredExpression';
 
 @NgModule({
-	declarations: [BravoCalculatorComponent, ThousandsSeparatorPipe, ClickMenuSelectionDirective, MenuMultipleSelectComponent],
+	declarations: [BravoCalculatorComponent, ThousandsSeparatorPipe, ClickMenuSelectionDirective, MenuMultipleSelectComponent, RandomColorExpression],
 	imports: [CommonModule, FormsModule, WjCoreModule, WjInputModule],
 	exports: [BravoCalculatorComponent],
 	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver }, ReducerService, Store, CalculatorInvoker],

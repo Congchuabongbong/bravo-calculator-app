@@ -55,22 +55,22 @@ export class CalculatorReceiver {
 	//**Handle Command here!
 	//**add
 	public handleAddCommand(request: ObjRequestCommand): void {
-		this._executeCommand(request.operands, EOperatorString.Addition, request.isRebuildExpression);
+		this._executeCommand(request, EOperatorString.Addition);
 	}
 
 	//**Subtract */
 	public handleSubtractCommand(request: ObjRequestCommand): void {
-		this._executeCommand(request.operands, EOperatorString.Subtraction);
+		this._executeCommand(request, EOperatorString.Subtraction);
 	}
 
 	//**Multiply */
 	public handleMultiplyCommand(request: ObjRequestCommand): void {
-		this._executeCommand(request.operands, EOperatorString.Multiplication);
+		this._executeCommand(request, EOperatorString.Multiplication);
 	}
 
 	//**Divide */
 	public handleDivideCommand(request: ObjRequestCommand): void {
-		this._executeCommand(request.operands, EOperatorString.Division);
+		this._executeCommand(request, EOperatorString.Division);
 	}
 
 	//**Divide percent */
@@ -90,16 +90,22 @@ export class CalculatorReceiver {
 	}
 
 	//**execute command */
-	private _executeCommand(operands: number[] | number, operatorString: EOperatorString, isRebuildExpression: boolean = false): void {
+	private _executeCommand({ isRebuildExpression, operands }: ObjRequestCommand, operatorString: EOperatorString): void {
 		if (this.currentOperator === EOperatorString.Equal) this._endBuildExpression();
 		this.currentOperator = operatorString;
-		if (this.isNextOperator && !isRebuildExpression) return;
+		if (this.isNextOperator) {
+			if (!isRebuildExpression) return;
+			this._buildExpressionString(operands, isRebuildExpression);
+			this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
+			return;
+		}
 		if (!this._isStartBuildExpression) this._beginBuildExpression();
-		this._buildExpressionString(operands, isRebuildExpression);
+		this._buildExpressionString(operands);
 		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
 		this.isNexOperator = true;
 	}
 
+	private _rebuildExpression(operands: number[] | number, isRebuildExpression: boolean): void {}
 	//**Clean Command */
 	public handleClean(isClearAll: boolean = false): void {
 		//reset state:
@@ -178,7 +184,7 @@ export class CalculatorReceiver {
 	}
 
 	//** Build Expression String */
-	private _buildExpressionString(operands: number[] | number, isRebuildExpression: boolean) {
+	private _buildExpressionString(operands: number[] | number, isRebuildExpression: boolean = false) {
 		let operatorDisplay: string = this.currentOperator;
 		let operatorEval: string = this.currentOperator;
 		if (this.currentOperator === EOperatorString.Multiplication) {
@@ -201,9 +207,9 @@ export class CalculatorReceiver {
 			equationEval = operand + operatorEval;
 		}
 
-		if (!isRebuildExpression) {
-			this._expressionBuilder.replace(this._previousExpressionBuilder, '');
-			this._expressionEvalBuilder.replace(this._previousExpressionEvalBuilder, '');
+		if (isRebuildExpression) {
+			this._expressionBuilder = this._expressionBuilder.replace(this._previousExpressionBuilder, '');
+			this._expressionEvalBuilder = this._expressionEvalBuilder.replace(this._previousExpressionEvalBuilder, '');
 		}
 		this._previousExpressionBuilder = equation;
 		this._previousExpressionEvalBuilder = equationEval;

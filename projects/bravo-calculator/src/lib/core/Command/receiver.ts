@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { isInt } from '../../shared/utils';
 import { EOperatorEVal, EOperatorString } from '../data-type/enum';
 import { ObjRequestCommand } from '../data-type/type';
 
@@ -105,7 +106,6 @@ export class CalculatorReceiver {
 		this.isNexOperator = true;
 	}
 
-	private _rebuildExpression(operands: number[] | number, isRebuildExpression: boolean): void {}
 	//**Clean Command */
 	public handleClean(isClearAll: boolean = false): void {
 		//reset state:
@@ -142,13 +142,12 @@ export class CalculatorReceiver {
 		if (!Array.isArray(request.operands)) {
 			if (this.isNextOperator) {
 				this.currentOperator = EOperatorString.Equal;
-				completeExpression = this._expressionBuilder + `${this._isInt(this.result) ? this.result.toFixed(1) : this.result}`;
+				completeExpression = this._expressionBuilder + `${isInt(this.result) ? this.result.toFixed(1) : this.result}`;
 			} else {
-				//!!check
-				this._expressionBuilder += `${this._isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
-				this._expressionEvalBuilder += `${this._isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
+				this._expressionBuilder += `${isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
+				this._expressionEvalBuilder += `${isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
 				this._executeExpression(this._expressionEvalBuilder);
-				completeExpression = this._expressionBuilder + `${EOperatorString.Equal}${this._isInt(this.result) ? this.result.toFixed(1) : this.result}`;
+				completeExpression = this._expressionBuilder + `${EOperatorString.Equal}${isInt(this.result) ? this.result.toFixed(1) : this.result}`;
 				this._expressionBuilder += EOperatorString.Equal;
 				this.currentOperator = EOperatorString.Equal;
 			}
@@ -203,7 +202,7 @@ export class CalculatorReceiver {
 			equationEval += operatorEval;
 		} else {
 			let operand = Array.isArray(operands) ? operands[0] : operands;
-			equation = (this._isInt(operand) ? operand.toFixed(1) : operand) + operatorDisplay;
+			equation = (isInt(operand) ? operand.toFixed(1) : operand) + operatorDisplay;
 			equationEval = operand + operatorEval;
 		}
 
@@ -277,13 +276,5 @@ export class CalculatorReceiver {
 			alert(`Expression invalid: ${expression}`);
 			throw new Error(error);
 		}
-	}
-
-	private _isInt(val: number) {
-		return Number(val) === val && val % 1 === 0;
-	}
-
-	private isFloat(va: number) {
-		return Number(va) === va && va % 1 !== 0;
 	}
 }

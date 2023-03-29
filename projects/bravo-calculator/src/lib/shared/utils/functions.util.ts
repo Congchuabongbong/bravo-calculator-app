@@ -19,3 +19,7 @@ export function unformattedNumber(formattedNumber: string): number {
 	if (formattedNumber.length <= 0) throw new Error('Can not unformatted number');
 	return parseFloat(formattedNumber.replace(/ /g, ''));
 }
+
+export function isInt(val: number) {
+	return Number(val) === val && val % 1 === 0;
+}

@@ -5,7 +5,8 @@ import { formatNumber } from '../utils';
 	name: 'thousandsSeparator',
 })
 export class ThousandsSeparatorPipe implements PipeTransform {
-	transform(value: string): string {
+	transform(value: string | number): string {
+		if (typeof value === 'number') value = value.toString();
 		if (value.length <= 0) return '';
 		let decimalPart = '';
 		if (value.includes('.')) {

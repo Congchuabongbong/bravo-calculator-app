@@ -1,7 +1,8 @@
 <div class="calculator-container" tabindex="0" (keydown)="onKeyDownCalculatorContainer($event)"
     (dblclick)="onHandleClickCalculatorContainer($event)">
     <div class="calculator-histories" #calculatorHistories
-        [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''">
+        [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''"
+        (mouseenter)="handleMouseenterCalculatorHistories($event)">
         <span class="m-symbol">M</span>
         <ul class="calculator-histories-expression">
             <li class="histories-expression" *ngFor="let history of calculatorInvoker.calculationHistories">{{ history

@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, HostListener } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { EKeyCmdOption, EOptionCmd } from './core/data-type/enum';
+import { EEvenKey, EKeyCmdOption, EOperatorEVal, EOptionCmd } from './core/data-type/enum';
 import { CalculatorAction, ICalculatorPayload, ICalculatorState, OptionCmd, OptionsMenu } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
 import { ReducerService } from './core/redux/reducers.service';
@@ -10,7 +10,7 @@ import { Store } from './core/redux/store.service';
 import { defaultMenuOpts } from './init-app/defaultMenuOpts';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
 import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
-import { unformattedNumber } from './shared/utils';
+import { isInt, unformattedNumber } from './shared/utils';
 
 @Component({
 	selector: 'lib-bravo-calculator',
@@ -26,7 +26,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	@ViewChild('calculatorHistories', { static: true }) calculatorHistoriesRef!: ElementRef<HTMLDivElement>;
 	@ViewChildren('btn') btnRef!: QueryList<ElementRef<HTMLButtonElement>>;
 	@Input() titleTooltipHistories: string = 'Click đúp chuột vào một số bất kỳ để lấy giá trị số đó cho máy tính';
-	@Input() initsPostValue: number[] = [1, 2, 3, 4, 5];
+	@Input() initsPostValue!: number[];
 	private _receiverBroadcast!: BroadcastChannel;
 	public inputVal: string = '0';
 	private readonly _regexDigit = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
@@ -48,15 +48,15 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		{ key: '7', class: 'btn--7' },
 		{ key: '8', class: 'btn--8' },
 		{ key: '9', class: 'btn--9' },
-		{ key: 'Escape', class: 'btn--clear' },
-		{ key: 'Backspace', class: 'btn--backspace' },
-		{ key: '+', class: 'btn--add' },
-		{ key: '-', class: 'btn--subtract' },
-		{ key: '*', class: 'btn--multiple' },
-		{ key: '/', class: 'btn--divide' },
-		{ key: '=', class: 'btn--equal' },
-		{ key: '.', class: 'btn--decimal' },
-		{ key: 'abs', class: 'btn--abs' },
+		{ key: EEvenKey.Esc, class: 'btn--clear' },
+		{ key: EEvenKey.BackSpace, class: 'btn--backspace' },
+		{ key: EEvenKey.Addition, class: 'btn--add' },
+		{ key: EEvenKey.Subtraction, class: 'btn--subtract' },
+		{ key: EEvenKey.Multiplication, class: 'btn--multiple' },
+		{ key: EEvenKey.Division, class: 'btn--divide' },
+		{ key: EEvenKey.Equal, class: 'btn--equal' },
+		{ key: EEvenKey.Decimal, class: 'btn--decimal' },
+		{ key: EEvenKey.Abs, class: 'btn--abs' },
 	];
 
 	@Input('menuOptions') set menuCommandOptions(val: OptionsMenu[]) {
@@ -93,7 +93,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			if (this.initsPostValue) {
 				if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate)) {
 					this.calculatorInvoker.addAction(this.initsPostValue);
-					this.inputRef.nativeElement.value = this.calculatorInvoker.result.toString();
+					this.inputRef.nativeElement.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
 				}
 				this._previousPostValue = this.initsPostValue;
 			}
@@ -105,7 +105,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 				let isReCalculate = JSON.stringify(this._previousPostValue) !== JSON.stringify(event.data);
 				isReCalculate && (this._previousPostValue = event.data);
 				this.calculatorInvoker.addAction(event.data, isReCalculate);
-				this.inputRef.nativeElement.value = this.calculatorInvoker.result.toString();
+				this.inputRef.nativeElement.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
 			}
 		});
 
@@ -136,33 +136,33 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	//**Handle events
 	public onClickHandleAddBtn(event: HTMLTextAreaElement) {
-		this._handleActiveBtn('+');
+		this._handleActiveBtn(EEvenKey.Addition);
 		this.calculatorInvoker.addAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
+		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
 	}
 
 	public onClickHandleSubtractBtn(event: HTMLTextAreaElement) {
-		this._handleActiveBtn('-');
+		this._handleActiveBtn(EEvenKey.Subtraction);
 		this.calculatorInvoker.subtractAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
+		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
 	}
 
 	public onClickHandleMultiplyBtn(event: HTMLTextAreaElement) {
-		this._handleActiveBtn('*');
+		this._handleActiveBtn(EEvenKey.Multiplication);
 		this.calculatorInvoker.multiplyAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
+		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
 	}
 
 	public onClickHandleDivideBtn(event: HTMLTextAreaElement) {
-		this._handleActiveBtn('/');
+		this._handleActiveBtn(EEvenKey.Division);
 		this.calculatorInvoker.divideAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString());
+		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
 	}
 
 	public onClickEndCalculationBtn(event: HTMLTextAreaElement) {
-		this._handleActiveBtn('=');
+		this._handleActiveBtn(EEvenKey.Equal);
 		this.calculatorInvoker.endCalculationAction(unformattedNumber(event.value));
-		!this.calculatorInvoker.isDeleteResultDisplay && (event.value = this.thousandsSeparator.transform(this.calculatorInvoker.result.toString()));
+		!this.calculatorInvoker.isDeleteResultDisplay && (event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result)));
 	}
 
 	public onClickNumbersPadBtn(event: string): void {
@@ -174,7 +174,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	public onBackSpaceBtn(event: HTMLTextAreaElement): void {
-		this._handleActiveBtn('Backspace');
+		this._handleActiveBtn(EEvenKey.BackSpace);
 		if (!this.calculatorInvoker.isDeleteResultDisplay) return;
 		if (event.value.length === 1) event.value = '0';
 		event.selectionEnd = event.value.length - 1;
@@ -189,14 +189,14 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	public onClearBtn(event: HTMLTextAreaElement, isClearAll: boolean = false): void {
-		this._handleActiveBtn('Escape');
+		this._handleActiveBtn(EEvenKey.Esc);
 		event.value = '0';
 		this.calculatorInvoker.clearAction(isClearAll);
 		event.focus();
 	}
 
 	public onDecimalBtn(event: HTMLTextAreaElement) {
-		this._handleActiveBtn('.');
+		this._handleActiveBtn(EEvenKey.Decimal);
 		if (event.value === '0') {
 			event.value += '.';
 			this.calculatorInvoker.isDeleteResultDisplay = true;
@@ -208,12 +208,13 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	public onAbsBtn(event: HTMLTextAreaElement) {
-		this._handleActiveBtn('abs');
+		this._handleActiveBtn(EEvenKey.Abs);
 		if (this.inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) return;
 		event.value = event.value.startsWith('-') ? event.value.replace('-', '') : '-'.concat(event.value);
 		event.focus();
 	}
 
+	// @HostListener('input', ['$event'])
 	public onKeyDownCalculatorContainer(event: KeyboardEvent) {
 		this.inputRef.nativeElement.focus();
 		//**handle number pad:
@@ -226,58 +227,68 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			//**handle operators here:
 			event.preventDefault();
 			switch (event.key) {
-				case 'Escape':
-					//handle escape
-					if (this._selectOptByKey(this._selectedOptionEscCmd, EOptionCmd.Nothing)) return;
-					else {
-						//Group1
-						if (this._selectOptByKey(this._selectedOptionEscCmd, EOptionCmd.Clear)) this.onClearBtn(this.inputRef.nativeElement);
-						else if (this._selectOptByKey(this._selectedOptionEscCmd, EOptionCmd.ClearAll)) this.onClearBtn(this.inputRef.nativeElement, true);
-						//Group3
-						if (this._selectOptByKey(this._selectedOptionEscCmd, EOptionCmd.CalculateAndPaste)) {
-							this.onClickEndCalculationBtn(this.inputRef.nativeElement);
-							this.inputRef.nativeElement.select();
-							document.execCommand('copy');
-						} else if (this._selectOptByKey(this._selectedOptionEscCmd, EOptionCmd.Calculate)) this.onClickEndCalculationBtn(this.inputRef.nativeElement);
-					}
+				case EEvenKey.Esc:
+					this._handleCmdEnterOrEsc(EKeyCmdOption.Escape);
 					break;
-				case 'Enter':
-					//handle Enter
-					//Group1
-					if (this._selectOptByKey(this._selectedOptionEnterCmd, EOptionCmd.Nothing)) return;
-					else {
-						//Group3
-						if (this._selectOptByKey(this._selectedOptionEnterCmd, EOptionCmd.Clear)) this.onClearBtn(this.inputRef.nativeElement);
-						else if (this._selectOptByKey(this._selectedOptionEnterCmd, EOptionCmd.ClearAll)) this.onClearBtn(this.inputRef.nativeElement, true);
-						if (this._selectOptByKey(this._selectedOptionEnterCmd, EOptionCmd.CalculateAndPaste)) {
-							this.onClickEndCalculationBtn(this.inputRef.nativeElement);
-							this.inputRef.nativeElement.select();
-							document.execCommand('copy');
-						} else if (this._selectOptByKey(this._selectedOptionEnterCmd, EOptionCmd.Calculate)) this.onClickEndCalculationBtn(this.inputRef.nativeElement);
-					}
-
+				case EEvenKey.Enter:
+					this._handleCmdEnterOrEsc(EKeyCmdOption.Enter);
 					break;
-				case 'Backspace':
+				case EEvenKey.BackSpace:
 					this.onBackSpaceBtn(this.inputRef.nativeElement);
 					break;
-				case '+':
+				case EEvenKey.Addition:
 					this.onClickHandleAddBtn(this.inputRef.nativeElement);
 					break;
-				case '-':
+				case EEvenKey.Subtraction:
 					this.onClickHandleSubtractBtn(this.inputRef.nativeElement);
 					break;
-				case '*':
+				case EEvenKey.Multiplication:
 					this.onClickHandleMultiplyBtn(this.inputRef.nativeElement);
 					break;
-				case '/':
+				case EEvenKey.Division:
 					this.onClickHandleDivideBtn(this.inputRef.nativeElement);
 					break;
-				case '=':
+				case EEvenKey.Equal:
 					this.onClickEndCalculationBtn(this.inputRef.nativeElement);
 					break;
-				case '.':
+				case EEvenKey.Decimal:
 					this.onDecimalBtn(this.inputRef.nativeElement);
 			}
+		}
+	}
+
+	// @HostListener('mousemove', ['$event'])
+	public handleMouseenterCalculatorHistories(event: MouseEvent) {
+		console.log(123);
+	}
+
+	@HostListener('mouseleave', ['$event'])
+	public handleMouseleave() {
+		console.log(123);
+	}
+
+	private _handleCmdEnterOrEsc(keyCmd: EKeyCmdOption) {
+		let selectedOptionCmd: OptionCmd[] = [];
+		switch (keyCmd) {
+			case EKeyCmdOption.Enter:
+				selectedOptionCmd = this._selectedOptionEnterCmd;
+				break;
+			case EKeyCmdOption.Escape:
+				selectedOptionCmd = this._selectedOptionEnterCmd;
+				break;
+		}
+		//handle escape
+		if (this._selectOptByKey(selectedOptionCmd, EOptionCmd.Nothing)) return;
+		else {
+			//Group1
+			if (this._selectOptByKey(selectedOptionCmd, EOptionCmd.Clear)) this.onClearBtn(this.inputRef.nativeElement);
+			else if (this._selectOptByKey(selectedOptionCmd, EOptionCmd.ClearAll)) this.onClearBtn(this.inputRef.nativeElement, true);
+			//Group3
+			if (this._selectOptByKey(selectedOptionCmd, EOptionCmd.CalculateAndPaste)) {
+				this.onClickEndCalculationBtn(this.inputRef.nativeElement);
+				this.inputRef.nativeElement.select();
+				document.execCommand('copy');
+			} else if (this._selectOptByKey(selectedOptionCmd, EOptionCmd.Calculate)) this.onClickEndCalculationBtn(this.inputRef.nativeElement);
 		}
 	}
 
@@ -305,6 +316,10 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 				return;
 			}
 		});
+	}
+
+	private _convertIntToDecimal(number: number): string | number {
+		return isInt(number) ? number.toFixed(1) : number;
 	}
 
 	public generateSuggest(event: HTMLTextAreaElement) {

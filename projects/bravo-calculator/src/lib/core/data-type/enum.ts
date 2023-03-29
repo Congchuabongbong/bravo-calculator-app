@@ -25,6 +25,31 @@ export enum EOperatorEVal {
 	Subtraction = ' - ',
 	Multiplication = ' * ',
 	Division = ' / ',
+	Equal = ' = ',
+	Decimal = ' . ',
+	Abs = 'abs',
+}
+
+export enum EEvenKey {
+	Addition = '+',
+	Subtraction = '-',
+	Multiplication = '*',
+	Division = '/',
+	Equal = '=',
+	Decimal = '.',
+	Abs = 'abs',
+	BackSpace = 'Backspace',
+	Esc = 'Escape',
+	Enter = 'Enter',
+	One = '1',
+	Two = '2',
+	Three = '3',
+	Four = '4',
+	Five = '5',
+	Six = '6',
+	Seven = '7',
+	Eight = '8',
+	Nine = '9',
 }
 
 export enum EInputAction {

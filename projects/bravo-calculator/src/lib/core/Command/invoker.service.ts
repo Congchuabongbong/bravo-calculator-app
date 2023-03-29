@@ -14,22 +14,22 @@ import { EqualCommand } from './concrete-command/equal.command.class';
 export class CalculatorInvoker {
 	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
 
-	public addAction(operands: number[] | number = 0) {
-		const command = new AddCommand(this._receiver, { operands });
+	public addAction(operands: number[] | number, isRebuildExpression: boolean = false) {
+		const command = new AddCommand(this._receiver, { operands, isRebuildExpression });
 		this._executeCommand(command, EOperatorType.Add);
 	}
 
-	public subtractAction(operands: number[] | number = 0) {
+	public subtractAction(operands: number[] | number) {
 		const command = new SubtractCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Subtract);
 	}
 
-	public multiplyAction(operands: number[] | number = 0) {
+	public multiplyAction(operands: number[] | number) {
 		const command = new MultiplyCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Multiple);
 	}
 
-	public divideAction(operands: number[] | number = 0) {
+	public divideAction(operands: number[] | number) {
 		const command = new DivideCommand(this._receiver, { operands });
 		this._executeCommand(command, EOperatorType.Divide);
 	}
@@ -39,8 +39,8 @@ export class CalculatorInvoker {
 		this._executeCommand(command, EOperatorType.Equals);
 	}
 
-	public clearAction() {
-		this._receiver.handleClean();
+	public clearAction(isClearAll: boolean = false) {
+		this._receiver.handleClean(isClearAll);
 	}
 	//execute command end dispatch update state into store!
 	private _executeCommand(command: ICommand, type: EOperatorType): void {

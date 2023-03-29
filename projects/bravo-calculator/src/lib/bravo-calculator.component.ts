@@ -1,14 +1,16 @@
-import { AfterViewInit, Component, ComponentFactoryResolver, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
+import { AfterViewInit, Component, ComponentFactoryResolver, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { EKeyCmdOption } from './core/data-type/enum';
+import { EKeyCmdOption, EOptionCmd } from './core/data-type/enum';
 import { CalculatorAction, ICalculatorPayload, ICalculatorState, OptionCmd, OptionsMenu } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
 import { ReducerService } from './core/redux/reducers.service';
 import { Store } from './core/redux/store.service';
+import { defaultMenuOpts } from './init-app/defaultMenuOpts';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
 import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
 import { unformattedNumber } from './shared/utils';
+
 @Component({
 	selector: 'lib-bravo-calculator',
 	templateUrl: './bravo-calculator.component.html',
@@ -34,6 +36,8 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	private _selectedOptionEnterCmd!: OptionCmd[];
 	private _selectedOptionOtherCmd!: OptionCmd[];
 
+	private _previousPostValue!: number[];
+
 	private readonly _btnMap = [
 		{ key: '1', class: 'btn--1' },
 		{ key: '2', class: 'btn--2' },
@@ -55,39 +59,21 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		{ key: 'abs', class: 'btn--abs' },
 	];
 
-	@Input('menuOptions') menuCommandOptions: OptionsMenu[] = [
-		{
-			descCmd: 'Tùy chọn khi bấm phím Enter',
-			keyCmd: EKeyCmdOption.Enter,
-			optionsCmd: [
-				{ value: true, name: 'Không', group: 0 },
-				{ value: false, name: 'Xóa tất cả', group: 1 },
-				{ value: false, name: 'Xóa', group: 1 },
-				{ value: false, name: 'Thu nhỏ máy tính', group: 2 },
-				{ value: false, name: 'Chuyển cửa sổ', group: 2 },
-				{ value: false, name: 'Tính', group: 3 },
-				{ value: false, name: 'Tính và dán kết quả', group: 3 },
-			],
-		},
-		{
-			descCmd: 'Tùy chọn khi bấm phím Esc',
-			keyCmd: EKeyCmdOption.Escape,
-			optionsCmd: [
-				{ value: false, name: 'Không', group: 0 },
-				{ value: true, name: 'Xóa tất cả', group: 1 },
-				{ value: false, name: 'Xóa', group: 1 },
-				{ value: false, name: 'Thu nhỏ máy tính', group: 2 },
-				{ value: false, name: 'Chuyển cửa sổ', group: 2 },
-				{ value: false, name: 'Tính', group: 3 },
-				{ value: false, name: 'Tính và dán kết quả', group: 3 },
-			],
-		},
-		{
-			descCmd: 'Các tùy chọn khác',
-			keyCmd: EKeyCmdOption.Other,
-			optionsCmd: [{ value: true, name: 'Tự động tính khi chọn số', group: 0 }],
-		},
-	];
+	@Input('menuOptions') set menuCommandOptions(val: OptionsMenu[]) {
+		this._getSelectedOptionInCmd(val);
+		this._menuCommandOptions = val;
+	}
+
+	get menuCommandOptions() {
+		if (!this._menuCommandOptions) {
+			this._getSelectedOptionInCmd(defaultMenuOpts);
+			this._menuCommandOptions = defaultMenuOpts;
+		}
+
+		return this._menuCommandOptions;
+	}
+
+	private _menuCommandOptions!: OptionsMenu[];
 
 	public menuMultipleSelect!: MenuMultipleSelectComponent;
 	//**Constructor here */
@@ -110,7 +96,8 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	ngAfterViewInit(): void {
 		this._receiverBroadcast.addEventListener('message', event => {
-			this.calculatorInvoker.addAction(event.data);
+			let isReCalculate = JSON.stringify(this._previousPostValue) !== JSON.stringify(event.data);
+			this.calculatorInvoker.addAction(event.data, isReCalculate);
 			this.inputRef.nativeElement.value = this.calculatorInvoker.result.toString();
 		});
 		this._handleActiveBtn('Escape');
@@ -188,10 +175,10 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		event.value = strInput.trimEnd();
 	}
 
-	public onClearBtn(event: HTMLTextAreaElement) {
+	public onClearBtn(event: HTMLTextAreaElement, isClearAll: boolean = false): void {
 		this._handleActiveBtn('Escape');
 		event.value = '0';
-		this.calculatorInvoker.clearAction();
+		this.calculatorInvoker.clearAction(isClearAll);
 		event.focus();
 	}
 
@@ -227,7 +214,35 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			event.preventDefault();
 			switch (event.key) {
 				case 'Escape':
-					this.onClearBtn(this.inputRef.nativeElement);
+					//handle escape
+					if (this._selectOpt(this._selectedOptionEscCmd, EOptionCmd.Nothing)) return;
+					else {
+						//Group1
+						if (this._selectOpt(this._selectedOptionEscCmd, EOptionCmd.Clear)) this.onClearBtn(this.inputRef.nativeElement);
+						else if (this._selectOpt(this._selectedOptionEscCmd, EOptionCmd.ClearAll)) this.onClearBtn(this.inputRef.nativeElement, true);
+						//Group3
+						if (this._selectOpt(this._selectedOptionEscCmd, EOptionCmd.CalculateAndPaste)) {
+							this.onClickEndCalculationBtn(this.inputRef.nativeElement);
+							this.inputRef.nativeElement.select();
+							document.execCommand('copy');
+						} else if (this._selectOpt(this._selectedOptionEscCmd, EOptionCmd.Calculate)) this.onClickEndCalculationBtn(this.inputRef.nativeElement);
+					}
+					break;
+				case 'Enter':
+					//handle Enter
+					//Group1
+					if (this._selectOpt(this._selectedOptionEnterCmd, EOptionCmd.Nothing)) return;
+					else {
+						//Group3
+						if (this._selectOpt(this._selectedOptionEnterCmd, EOptionCmd.Clear)) this.onClearBtn(this.inputRef.nativeElement);
+						else if (this._selectOpt(this._selectedOptionEnterCmd, EOptionCmd.ClearAll)) this.onClearBtn(this.inputRef.nativeElement, true);
+						if (this._selectOpt(this._selectedOptionEnterCmd, EOptionCmd.CalculateAndPaste)) {
+							this.onClickEndCalculationBtn(this.inputRef.nativeElement);
+							this.inputRef.nativeElement.select();
+							document.execCommand('copy');
+						} else if (this._selectOpt(this._selectedOptionEnterCmd, EOptionCmd.Calculate)) this.onClickEndCalculationBtn(this.inputRef.nativeElement);
+					}
+
 					break;
 				case 'Backspace':
 					this.onBackSpaceBtn(this.inputRef.nativeElement);
@@ -288,6 +303,30 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	public onSelectionChange(e: OptionsMenu[]) {
 		e.forEach(cmd => {
+			switch (cmd.keyCmd) {
+				case EKeyCmdOption.Enter:
+					this._selectedOptionEnterCmd = cmd.optionsCmd.filter(opt => opt.value === true);
+					break;
+				case EKeyCmdOption.Escape:
+					this._selectedOptionEscCmd = cmd.optionsCmd.filter(opt => opt.value === true);
+					break;
+				case EKeyCmdOption.Other:
+					this._selectedOptionOtherCmd = cmd.optionsCmd.filter(opt => opt.value === true);
+					break;
+			}
+		});
+	}
+
+	private _selectOpt(optsCmd: OptionCmd[], optCmdKey: EOptionCmd): boolean {
+		if (optsCmd.length > 0) {
+			let isOptSelected = optsCmd.some(opt => opt.optCmdKey === optCmdKey);
+			return isOptSelected;
+		}
+		return false;
+	}
+
+	private _getSelectedOptionInCmd(menuOpts: OptionsMenu[]) {
+		menuOpts.forEach(cmd => {
 			switch (cmd.keyCmd) {
 				case EKeyCmdOption.Enter:
 					this._selectedOptionEnterCmd = cmd.optionsCmd.filter(opt => opt.value === true);

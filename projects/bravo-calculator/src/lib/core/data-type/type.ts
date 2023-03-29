@@ -1,4 +1,4 @@
-import { EInputAction, EKeyCmdOption, EOperatorType } from './enum';
+import { EGroupMenu, EInputAction, EKeyCmdOption, EOperatorType, EOptionCmd } from './enum';
 
 export interface IReducer<S, P> {
 	reduce(state: S, payload: P): S;
@@ -11,6 +11,7 @@ export interface ICommand {
 
 export type ObjRequestCommand = {
 	operands: number[] | number;
+	isRebuildExpression?: boolean;
 };
 
 //TODO: optimized type state and payload for store to update into reducer
@@ -33,4 +34,4 @@ export type OptionsMenu = {
 	optionsCmd: OptionCmd[];
 };
 
-export type OptionCmd = { name: string; value: boolean; group: number };
+export type OptionCmd = { name: string; value: boolean; group: EGroupMenu; optCmdKey: EOptionCmd };

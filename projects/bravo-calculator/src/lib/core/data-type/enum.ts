@@ -38,3 +38,21 @@ export enum EKeyCmdOption {
 	Enter,
 	Other,
 }
+
+export enum EGroupMenu {
+	Default,
+	Group1,
+	Group2,
+	Group3,
+}
+
+export enum EOptionCmd {
+	Nothing,
+	ClearAll,
+	Clear,
+	HideCalculation,
+	SwitchWindow,
+	Calculate,
+	CalculateAndPaste,
+	AutoCalculate,
+}

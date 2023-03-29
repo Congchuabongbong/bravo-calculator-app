@@ -1,5 +1,5 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, OnDestroy } from '@angular/core';
-import { EKeyCmdOption } from '../../../core/data-type/enum';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
+import { EGroupMenu } from '../../../core/data-type/enum';
 import { OptionCmd, OptionsMenu } from '../../../core/data-type/type';
 
 @Component({
@@ -25,7 +25,10 @@ export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 	constructor(private _el: ElementRef<HTMLElement>, private _renderer: Renderer2) {}
 
 	//*Life cycle here
-	ngOnDestroy(): void {}
+	ngOnDestroy(): void {
+		this.selectionChange.unsubscribe();
+	}
+
 	ngOnInit(): void {
 		this._renderer.addClass(this._el.nativeElement, 'menu-multiple-select');
 		this._renderer.addClass(this._el.nativeElement, 'active');
@@ -46,14 +49,20 @@ export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 
 	private _mergeSelectOptionCmd(cmd: OptionsMenu, optionCmd: OptionCmd): void {
 		let selectedOptions: OptionCmd[] = cmd.optionsCmd.filter(opt => opt.value === true);
-		let defaultOpt = cmd.optionsCmd.find(opt => opt.group === 0) as OptionCmd;
-		if (optionCmd.group === 0 || selectedOptions.length === 0) {
+		let defaultOpt = cmd.optionsCmd.find(opt => opt.group === EGroupMenu.Default) as OptionCmd;
+		if (optionCmd.group !== EGroupMenu.Default && selectedOptions.length === 0) {
+			this.updateCheckedValue(cmd, optionCmd);
+		} else if (optionCmd.group === EGroupMenu.Default || selectedOptions.length === 0) {
 			this.reset(cmd);
 		} else {
 			if (selectedOptions.length === 1) {
 				if (optionCmd.value) {
 					let currentOptExist = selectedOptions[0];
-					if (currentOptExist.group === 0 || (currentOptExist.group === optionCmd.group && currentOptExist.name !== optionCmd.name)) {
+					if (
+						currentOptExist.group === EGroupMenu.Default ||
+						(currentOptExist.group === optionCmd.group && currentOptExist.name !== optionCmd.name) ||
+						(currentOptExist.group !== optionCmd.group && !this._canMerge(currentOptExist, optionCmd))
+					) {
 						this.updateCheckedValue(cmd, optionCmd, currentOptExist);
 					} else {
 						this._canMerge(currentOptExist, optionCmd) && this.updateCheckedValue(cmd, optionCmd);
@@ -61,7 +70,7 @@ export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 				} else {
 					let exitsOpt = selectedOptions.find(op => op.name === optionCmd.name);
 					if (exitsOpt) {
-						this.updateCheckedValue(cmd, defaultOpt, optionCmd);
+						this.updateCheckedValue(cmd, optionCmd, defaultOpt);
 					}
 				}
 			} else if (selectedOptions.length === 2) {
@@ -85,10 +94,11 @@ export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 
 	private updateCheckedValue(cmd: OptionsMenu, optionCmd: OptionCmd, previousOpt?: OptionCmd) {
 		cmd.optionsCmd.forEach(opt => {
-			if (previousOpt && opt.name === previousOpt.name) opt.value = !opt.value;
 			if (opt.name === optionCmd.name) opt.value = !opt.value;
+			if (previousOpt && opt.name === previousOpt.name) opt.value = !opt.value;
 		});
 	}
+
 	private reset(cmd: OptionsMenu) {
 		cmd.optionsCmd.forEach(opt => {
 			if (opt.group === 0) opt.value = true;

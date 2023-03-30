@@ -10,7 +10,7 @@ export interface ICommand {
 }
 
 export type ObjRequestCommand = {
-	operands: number[] | number;
+	operands: string[] | string;
 	isRebuildExpression?: boolean;
 };
 

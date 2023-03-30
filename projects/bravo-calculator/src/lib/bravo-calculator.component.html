@@ -1,8 +1,6 @@
-<div class="calculator-container" tabindex="0" (keydown)="onKeyDownCalculatorContainer($event)"
-    (dblclick)="onHandleClickCalculatorContainer($event)">
+<div class="calculator-container" tabindex="0">
     <div class="calculator-histories" #calculatorHistories
-        [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''"
-        (mouseenter)="handleMouseenterCalculatorHistories($event)">
+        [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''">
         <span class="m-symbol">M</span>
         <ul class="calculator-histories-expression">
             <li class="histories-expression" *ngFor="let history of calculatorInvoker.calculationHistories">{{ history
@@ -17,19 +15,21 @@
             </span>
 
             <div class="calculator-screen_top-right right">
-                <p class="calculator-screen_currentExpress"
-                    [innerHtml]=" calculatorInvoker.currentExpression  | randomColorExpression "></p>
-                <!-- <ul class="calculator-screen_list-suggest">
-					<li class="input-suggest"><button class="btn-suggest">1000</button></li>
-					<li class="input-suggest"><button class="btn-suggest">100000</button></li>
-					<li class="input-suggest"><button class="btn-suggest">1000000000000</button></li>
-				</ul> -->
+                <p class="calculator-screen_currentExpress "
+                    [innerHtml]=" calculatorInvoker.currentExpression  | randomColorExpression "
+                    *ngIf="!isResetDisplaySuggest"></p>
+                <ul class="calculator-screen_list-suggest" *ngIf="isResetDisplaySuggest" #containerInputSuggest>
+
+                    <li class="input-suggest"><button class="btn-suggest">{{this.suggestValueX4}}</button>
+                    </li>
+                    <li class="input-suggest"><button class="btn-suggest">{{this.suggestValueX3}}</button></li>
+                    <li class="input-suggest"><button class="btn-suggest">{{this.suggestValueX1}}</button></li>
+
+                </ul>
             </div>
         </div>
         <div class="calculator-screen_bottom">
-            <textarea type="text" [value]="inputVal" class="calculator-input" #input
-                [ngModel]="inputVal | thousandsSeparator" (ngModelChange)="inputVal = $event" aria-multiline="2"
-                (input)="onHandleInput(input)"></textarea>
+            <textarea type="text" [value]="inputVal" class="calculator-input" #input></textarea>
         </div>
     </div>
     <!-- Grid -->

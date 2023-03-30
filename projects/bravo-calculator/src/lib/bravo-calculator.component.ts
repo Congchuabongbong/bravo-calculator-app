@@ -1,8 +1,7 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, HostListener } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { EEvenKey, EKeyCmdOption, EOperatorEVal, EOptionCmd } from './core/data-type/enum';
+import { EEvenKey, EKeyCmdOption, EOptionCmd } from './core/data-type/enum';
 import { CalculatorAction, ICalculatorPayload, ICalculatorState, OptionCmd, OptionsMenu } from './core/data-type/type';
 import { CalculatorReducer } from './core/redux/calculatorReduce';
 import { ReducerService } from './core/redux/reducers.service';
@@ -10,7 +9,8 @@ import { Store } from './core/redux/store.service';
 import { defaultMenuOpts } from './init-app/defaultMenuOpts';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
 import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
-import { isInt, unformattedNumber } from './shared/utils';
+import { convertStrFormatType, unformattedNumber } from './shared/utils';
+import { formatNumber, isIntStr } from './shared/utils/functions.util';
 
 @Component({
 	selector: 'lib-bravo-calculator',
@@ -22,11 +22,12 @@ import { isInt, unformattedNumber } from './shared/utils';
 export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewInit {
 	//**Declaration here */
 	@ViewChild('input', { static: true }) inputRef!: ElementRef<HTMLTextAreaElement>;
-	@ViewChild('btnMenu', { static: true }) btnMenuRef!: ElementRef<HTMLSpanElement>;
 	@ViewChild('calculatorHistories', { static: true }) calculatorHistoriesRef!: ElementRef<HTMLDivElement>;
 	@ViewChildren('btn') btnRef!: QueryList<ElementRef<HTMLButtonElement>>;
+	@ViewChild('containerInputSuggest', { static: false }) containerInputSuggest!: ElementRef<HTMLSpanElement>;
+	// @ViewChildren('input-suggest', { emitDistinctChangesOnly: false }) btnSuggest!: QueryList<ElementRef<HTMLLIElement>>;
 	@Input() titleTooltipHistories: string = 'Click đúp chuột vào một số bất kỳ để lấy giá trị số đó cho máy tính';
-	@Input() initsPostValue!: number[];
+	@Input() initsPostValue!: string[];
 	private _receiverBroadcast!: BroadcastChannel;
 	public inputVal: string = '0';
 	private readonly _regexDigit = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
@@ -36,9 +37,16 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	private _selectedOptionEnterCmd!: OptionCmd[];
 	private _selectedOptionOtherCmd!: OptionCmd[];
 
-	private _previousPostValue!: number[];
+	private _previousPostValue!: string[];
+
+	public suggestValueX1: string = '';
+	public suggestValueX3: string = '';
+	public suggestValueX4: string = '';
+
+	public isResetDisplaySuggest = false;
 
 	private readonly _btnMap = [
+		{ key: '0', class: 'btn--0' },
 		{ key: '1', class: 'btn--1' },
 		{ key: '2', class: 'btn--2' },
 		{ key: '3', class: 'btn--3' },
@@ -77,12 +85,10 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	public menuMultipleSelect!: MenuMultipleSelectComponent;
 	//**Constructor here */
 	constructor(
-		private _elRef: ElementRef,
 		public calculationStore: Store<ICalculatorState, ICalculatorPayload>,
 		private _calculationReducers: ReducerService<ICalculatorState, CalculatorAction>,
 		public calculatorInvoker: CalculatorInvoker,
 		private thousandsSeparator: ThousandsSeparatorPipe,
-		private sanitizer: DomSanitizer,
 	) {
 		this._calculationReducers.register(new CalculatorReducer());
 		this._receiverBroadcast = new BroadcastChannel('BravoCalculatorApp');
@@ -93,7 +99,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			if (this.initsPostValue) {
 				if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate)) {
 					this.calculatorInvoker.addAction(this.initsPostValue);
-					this.inputRef.nativeElement.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
+					this.inputRef.nativeElement.value = this.thousandsSeparator.transform(convertStrFormatType(this.calculatorInvoker.result));
 				}
 				this._previousPostValue = this.initsPostValue;
 			}
@@ -105,7 +111,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 				let isReCalculate = JSON.stringify(this._previousPostValue) !== JSON.stringify(event.data);
 				isReCalculate && (this._previousPostValue = event.data);
 				this.calculatorInvoker.addAction(event.data, isReCalculate);
-				this.inputRef.nativeElement.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
+				this.inputRef.nativeElement.value = this.thousandsSeparator.transform(convertStrFormatType(this.calculatorInvoker.result));
 			}
 		});
 
@@ -138,37 +144,49 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	public onClickHandleAddBtn(event: HTMLTextAreaElement) {
 		this._handleActiveBtn(EEvenKey.Addition);
 		this.calculatorInvoker.addAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
+		event.value = this.thousandsSeparator.transform(convertStrFormatType(this.calculatorInvoker.result));
+		this._resetSuggest();
 	}
 
 	public onClickHandleSubtractBtn(event: HTMLTextAreaElement) {
 		this._handleActiveBtn(EEvenKey.Subtraction);
 		this.calculatorInvoker.subtractAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
+		event.value = this.thousandsSeparator.transform(convertStrFormatType(this.calculatorInvoker.result));
+		this._resetSuggest();
+		this._hideSuggestContainer();
 	}
 
 	public onClickHandleMultiplyBtn(event: HTMLTextAreaElement) {
 		this._handleActiveBtn(EEvenKey.Multiplication);
 		this.calculatorInvoker.multiplyAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
+		event.value = this.thousandsSeparator.transform(convertStrFormatType(this.calculatorInvoker.result));
+		this._resetSuggest();
 	}
 
 	public onClickHandleDivideBtn(event: HTMLTextAreaElement) {
 		this._handleActiveBtn(EEvenKey.Division);
 		this.calculatorInvoker.divideAction(unformattedNumber(event.value));
-		event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result));
+		event.value = this.thousandsSeparator.transform(convertStrFormatType(this.calculatorInvoker.result));
+		this._resetSuggest();
 	}
 
 	public onClickEndCalculationBtn(event: HTMLTextAreaElement) {
 		this._handleActiveBtn(EEvenKey.Equal);
 		this.calculatorInvoker.endCalculationAction(unformattedNumber(event.value));
-		!this.calculatorInvoker.isDeleteResultDisplay && (event.value = this.thousandsSeparator.transform(this._convertIntToDecimal(this.calculatorInvoker.result)));
+		!this.calculatorInvoker.isDeleteResultDisplay && (event.value = this.thousandsSeparator.transform(convertStrFormatType(this.calculatorInvoker.result)));
+		this._resetSuggest();
 	}
 
 	public onClickNumbersPadBtn(event: string): void {
 		this._handleActiveBtn(event);
-		if (this.inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) this.inputRef.nativeElement.value = '';
+		if (this.inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) {
+			this.inputRef.nativeElement.value = '';
+			this._resetFontSizeInput();
+		}
 		this.inputRef.nativeElement.value = this.thousandsSeparator.transform((this.inputRef.nativeElement.value += event));
+		!isIntStr(this.inputRef.nativeElement.value) && this.generateSuggest(this.inputRef.nativeElement.value);
+
+		this._decreaseFontSizeInput(this.inputRef.nativeElement.value);
 		this.calculatorInvoker.isDeleteResultDisplay = true;
 		this.calculatorInvoker.isNexOperator = false;
 	}
@@ -176,22 +194,29 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	public onBackSpaceBtn(event: HTMLTextAreaElement): void {
 		this._handleActiveBtn(EEvenKey.BackSpace);
 		if (!this.calculatorInvoker.isDeleteResultDisplay) return;
-		if (event.value.length === 1) event.value = '0';
+		if ((event.value.length === 2 && event.value.includes('-')) || event.value.length === 1) event.value = '0';
 		event.selectionEnd = event.value.length - 1;
 		//handle backspace
 		let strInput = event.value;
 		if (strInput.length === 1) {
+			console.log(strInput);
+			this.generateSuggest(this.inputRef.nativeElement.value);
 			return;
 		}
 		if (strInput.endsWith(' ')) strInput = strInput.trimEnd();
 		strInput = strInput.slice(0, -1);
 		event.value = strInput.trimEnd();
+		this._increaseFontSizeInput(event.value);
+		!isIntStr(this.inputRef.nativeElement.value) && this.generateSuggest(this.inputRef.nativeElement.value);
+		event.focus();
 	}
 
 	public onClearBtn(event: HTMLTextAreaElement, isClearAll: boolean = false): void {
 		this._handleActiveBtn(EEvenKey.Esc);
 		event.value = '0';
 		this.calculatorInvoker.clearAction(isClearAll);
+		this._resetFontSizeInput();
+		this._resetSuggest();
 		event.focus();
 	}
 
@@ -204,6 +229,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			event.value += '.';
 			this.calculatorInvoker.isDeleteResultDisplay = true;
 		}
+		this._resetSuggest();
 		event.focus();
 	}
 
@@ -211,21 +237,21 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		this._handleActiveBtn(EEvenKey.Abs);
 		if (this.inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) return;
 		event.value = event.value.startsWith('-') ? event.value.replace('-', '') : '-'.concat(event.value);
+		!isIntStr(this.inputRef.nativeElement.value) && this.generateSuggest(event.value);
 		event.focus();
 	}
 
-	// @HostListener('input', ['$event'])
+	@HostListener('keydown', ['$event'])
 	public onKeyDownCalculatorContainer(event: KeyboardEvent) {
 		this.inputRef.nativeElement.focus();
+		event.preventDefault();
 		//**handle number pad:
 		if (event.keyCode >= 48 && event.keyCode <= 57 && !event.shiftKey) {
-			this._handleActiveBtn(event.key);
-			if (this.inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) this.inputRef.nativeElement.value = '';
-			this.calculatorInvoker.isDeleteResultDisplay = true;
-			this.calculatorInvoker.isNexOperator = false;
+			this.onClickNumbersPadBtn(event.key);
+			// this._handleActiveBtn(event.key);
 		} else {
 			//**handle operators here:
-			event.preventDefault();
+
 			switch (event.key) {
 				case EEvenKey.Esc:
 					this._handleCmdEnterOrEsc(EKeyCmdOption.Escape);
@@ -257,16 +283,6 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		}
 	}
 
-	// @HostListener('mousemove', ['$event'])
-	public handleMouseenterCalculatorHistories(event: MouseEvent) {
-		console.log(123);
-	}
-
-	@HostListener('mouseleave', ['$event'])
-	public handleMouseleave() {
-		console.log(123);
-	}
-
 	private _handleCmdEnterOrEsc(keyCmd: EKeyCmdOption) {
 		let selectedOptionCmd: OptionCmd[] = [];
 		switch (keyCmd) {
@@ -292,8 +308,35 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		}
 	}
 
-	onHandleInput(event: HTMLTextAreaElement) {}
+	private _decreaseFontSizeInput(numberStr: string) {
+		let valueUnFormatted = unformattedNumber(numberStr);
+		if (valueUnFormatted.length > 19 && valueUnFormatted.length < 29) {
+			this.inputRef.nativeElement.style.fontSize = '13px';
+			this.inputRef.nativeElement.style.fontWeight = '900';
+		} else if (valueUnFormatted.length > 29) {
+			this.inputRef.nativeElement.style.fontSize = '12px';
+			this.inputRef.nativeElement.value = valueUnFormatted;
+		}
+	}
 
+	private _increaseFontSizeInput(numberStr: string) {
+		let valueUnFormatted = unformattedNumber(numberStr);
+		if (valueUnFormatted.length <= 19) {
+			this.inputRef.nativeElement.style.fontSize = '24px';
+			this.inputRef.nativeElement.style.fontWeight = '500';
+			this.inputRef.nativeElement.value = this.thousandsSeparator.transform(this.inputRef.nativeElement.value);
+		} else if (valueUnFormatted.length > 19 && valueUnFormatted.length <= 29) {
+			this.inputRef.nativeElement.style.fontSize = '13px';
+			this.inputRef.nativeElement.value = this.thousandsSeparator.transform(this.inputRef.nativeElement.value);
+		}
+	}
+
+	private _resetFontSizeInput() {
+		this.inputRef.nativeElement.style.fontSize = '24px';
+		this.inputRef.nativeElement.style.fontWeight = '500';
+	}
+
+	@HostListener('dblclick', ['$event'])
 	public onHandleClickCalculatorContainer(event: MouseEvent): void {
 		if (!(event.target as HTMLElement).classList.contains('histories-expression')) return;
 		const selObj = window.getSelection();
@@ -318,17 +361,36 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		});
 	}
 
-	private _convertIntToDecimal(number: number): string | number {
-		return isInt(number) ? number.toFixed(1) : number;
+	public generateSuggest(numberString: string) {
+		const numberUnformatted = unformattedNumber(numberString.trim());
+		if (numberString === '0') {
+			this._resetSuggest();
+			return;
+		}
+		this.isResetDisplaySuggest = true;
+		this.suggestValueX1 = formatNumber(numberUnformatted.concat('00'), ',');
+		this.suggestValueX3 = formatNumber(numberUnformatted.concat('000'), ',');
+		this.suggestValueX4 = formatNumber(numberUnformatted.concat('0000'), ',');
+		setTimeout(() => {
+			this._hideSuggestContainer();
+		});
 	}
 
-	public generateSuggest(event: HTMLTextAreaElement) {
-		const numberUnformatted = unformattedNumber(event.value.trim());
-		const numberSuggest1x = (numberUnformatted * 10).toString();
-		const numberSuggest3x = (numberUnformatted * 1000).toString();
-		const numberSuggest4x = (numberUnformatted * 10000).toString();
+	private _resetSuggest() {
+		this.isResetDisplaySuggest = false;
+		this.suggestValueX1 = '';
+		this.suggestValueX3 = '';
+		this.suggestValueX4 = '';
 	}
+	private _hideSuggestContainer() {
+		let totalChildrenWidth = 0;
+		this.containerInputSuggest.nativeElement.childNodes.forEach(sg => {
+			totalChildrenWidth += (sg as HTMLLIElement).offsetWidth + +getComputedStyle(sg as HTMLLIElement).marginLeft.replace('px', '');
+		});
 
+		if (this.containerInputSuggest.nativeElement.clientWidth < totalChildrenWidth) this.containerInputSuggest.nativeElement.style.visibility = 'hidden';
+		else this.containerInputSuggest.nativeElement.style.visibility = 'visible';
+	}
 	public onSelectionChange(menuOpts: OptionsMenu[]) {
 		menuOpts.forEach(cmd => {
 			switch (cmd.keyCmd) {

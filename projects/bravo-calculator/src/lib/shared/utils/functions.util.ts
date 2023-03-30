@@ -1,6 +1,7 @@
 export function formatNumber(numberStr: string, symbol: string = ' '): string {
 	let formattedStr = '';
 	let minus = '';
+
 	if (numberStr.includes('-')) {
 		numberStr = numberStr.replace('-', '');
 		minus = '-';
@@ -15,11 +16,21 @@ export function formatNumber(numberStr: string, symbol: string = ' '): string {
 	return minus.concat(formattedStr);
 }
 
-export function unformattedNumber(formattedNumber: string): number {
+export function unformattedNumber(formattedNumber: string): string {
 	if (formattedNumber.length <= 0) throw new Error('Can not unformatted number');
-	return parseFloat(formattedNumber.replace(/ /g, ''));
+	return formattedNumber.replace(/ /g, '');
 }
 
 export function isInt(val: number) {
 	return Number(val) === val && val % 1 === 0;
+}
+
+export function isIntStr(numberStr: string): boolean {
+	if (numberStr.length === 0) return false;
+	return numberStr.includes('.');
+}
+
+export function convertStrFormatType(numberStr: string): string {
+	if (numberStr.length <= 0) return '';
+	return numberStr.includes('.') ? numberStr : numberStr.concat('.0');
 }

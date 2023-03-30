@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { isInt } from '../../shared/utils';
+import { convertStrFormatType } from '../../shared/utils';
+
 import { EOperatorEVal, EOperatorString } from '../data-type/enum';
 import { ObjRequestCommand } from '../data-type/type';
 
 @Injectable()
 export class CalculatorReceiver {
 	//**Declaration here */
-	public result: number = 0;
+	public result: string = '0';
 	private _currentOperator!: EOperatorString;
 	private _isNextOperator!: boolean;
 	private _isDeleteResultDisplay!: boolean;
@@ -117,7 +118,7 @@ export class CalculatorReceiver {
 		this._expressionEvalBuilder = '';
 		this._currentOperator = EOperatorString.Addition;
 		if (isClearAll) {
-			this.result = 0;
+			this.result = '0';
 			this._calculationHistories = [];
 		}
 	}
@@ -142,12 +143,12 @@ export class CalculatorReceiver {
 		if (!Array.isArray(request.operands)) {
 			if (this.isNextOperator) {
 				this.currentOperator = EOperatorString.Equal;
-				completeExpression = this._expressionBuilder + `${isInt(this.result) ? this.result.toFixed(1) : this.result}`;
+				completeExpression = this._expressionBuilder + `${convertStrFormatType(this.result.toString())}`;
 			} else {
-				this._expressionBuilder += `${isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
-				this._expressionEvalBuilder += `${isInt(request.operands) ? request.operands.toFixed(1) : request.operands}`;
+				this._expressionBuilder += `${convertStrFormatType(request.operands)}`;
+				this._expressionEvalBuilder += `${convertStrFormatType(request.operands)}`;
 				this._executeExpression(this._expressionEvalBuilder);
-				completeExpression = this._expressionBuilder + `${EOperatorString.Equal}${isInt(this.result) ? this.result.toFixed(1) : this.result}`;
+				completeExpression = this._expressionBuilder + `${EOperatorString.Equal}${convertStrFormatType(this.result.toString())}`;
 				this._expressionBuilder += EOperatorString.Equal;
 				this.currentOperator = EOperatorString.Equal;
 			}
@@ -183,7 +184,7 @@ export class CalculatorReceiver {
 	}
 
 	//** Build Expression String */
-	private _buildExpressionString(operands: number[] | number, isRebuildExpression: boolean = false) {
+	private _buildExpressionString(operands: string[] | string, isRebuildExpression: boolean = false) {
 		let operatorDisplay: string = this.currentOperator;
 		let operatorEval: string = this.currentOperator;
 		if (this.currentOperator === EOperatorString.Multiplication) {
@@ -194,7 +195,7 @@ export class CalculatorReceiver {
 		let equation;
 		let equationEval;
 		if (Array.isArray(operands) && operands.length >= 2) {
-			equation = operands.map(val => val.toFixed(1)).join(operatorDisplay);
+			equation = operands.map(operand => convertStrFormatType(operand)).join(operatorDisplay);
 			equation = '('.concat(equation).concat(')');
 			equation += operatorDisplay;
 			equationEval = operands.map(val => val).join(operatorEval);
@@ -202,7 +203,7 @@ export class CalculatorReceiver {
 			equationEval += operatorEval;
 		} else {
 			let operand = Array.isArray(operands) ? operands[0] : operands;
-			equation = (isInt(operand) ? operand.toFixed(1) : operand) + operatorDisplay;
+			equation = convertStrFormatType(operand) + operatorDisplay;
 			equationEval = operand + operatorEval;
 		}
 
@@ -255,8 +256,7 @@ export class CalculatorReceiver {
 
 	private _executeExpression(express: string) {
 		if (this._validateExpression(express)) {
-			this.result = eval(express);
-
+			this.result = ''.concat(eval(express));
 			this.isDeleteResultDisplay = false;
 		} else {
 			alert(`Expression invalid: ${express}`);
@@ -276,5 +276,9 @@ export class CalculatorReceiver {
 			alert(`Expression invalid: ${expression}`);
 			throw new Error(error);
 		}
+	}
+
+	private _isIntegerStr(numberStr: string) {
+		return numberStr.includes('.');
 	}
 }

@@ -15,17 +15,24 @@
             </span>
 
             <div class="calculator-screen_top-right right">
-                <p class="calculator-screen_currentExpress "
-                    [innerHtml]=" calculatorInvoker.currentExpression  | randomColorExpression "
-                    *ngIf="!isResetDisplaySuggest"></p>
-                <ul class="calculator-screen_list-suggest" *ngIf="isResetDisplaySuggest" #containerInputSuggest>
 
-                    <li class="input-suggest"><button class="btn-suggest">{{this.suggestValueX4}}</button>
-                    </li>
-                    <li class="input-suggest"><button class="btn-suggest">{{this.suggestValueX3}}</button></li>
-                    <li class="input-suggest"><button class="btn-suggest">{{this.suggestValueX1}}</button></li>
+                <ng-container *ngIf="isResetDisplaySuggest; else currentExpression">
+                    <ul class="calculator-screen_list-suggest" #containerInputSuggest>
 
-                </ul>
+                        <li class="input-suggest"><button class="btn-suggest"
+                                (click)="onClickSuggest(this.suggestValueX4,input)">{{this.suggestValueX4}}</button>
+                        </li>
+                        <li class="input-suggest"><button class="btn-suggest"
+                                (click)="onClickSuggest(this.suggestValueX4,input)">{{this.suggestValueX3}}</button>
+                        </li>
+                        <li class="input-suggest" (click)="onClickSuggest(this.suggestValueX4,input)"><button
+                                class="btn-suggest">{{this.suggestValueX1}}</button></li>
+                    </ul>
+                </ng-container>
+                <ng-template #currentExpression>
+                    <p class="calculator-screen_currentExpress "
+                        [innerHtml]=" calculatorInvoker.currentExpression  | randomColorExpression"></p>
+                </ng-template>
             </div>
         </div>
         <div class="calculator-screen_bottom">

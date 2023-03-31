@@ -11,7 +11,6 @@ export class RandomColorExpression implements PipeTransform {
 			return '';
 		}
 		let numbers = expression.match(/-?\d+\.?\d*/g) || ''; // regex để tìm tất cả số trong biểu thức
-
 		let result = '';
 		let lastIdx = 0; // vị trí cuối cùng của chuỗi số hạng hiện tại
 
@@ -21,7 +20,6 @@ export class RandomColorExpression implements PipeTransform {
 				// nếu không tìm thấy số hạng trong biểu thức, bỏ qua
 				continue;
 			}
-
 			if (idx > lastIdx) {
 				// thêm đoạn văn bản giữa các số hạng
 				result += expression.substring(lastIdx, idx);

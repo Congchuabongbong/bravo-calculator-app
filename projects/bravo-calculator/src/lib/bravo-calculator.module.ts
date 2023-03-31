@@ -7,7 +7,6 @@ import { Store } from './core/redux/store.service';
 import { calculatorReceiver, initialStateCalculator, INITIAL_STATE_CALCULATOR, RECEIVER_TOKEN } from './init-app';
 
 import { FormsModule } from '@angular/forms';
-import { ThousandsSeparatorPipe } from './shared/pipes/thousandsSeparator.format';
 import { WjCoreModule } from '@grapecity/wijmo.angular2.core';
 import { WjInputModule } from '@grapecity/wijmo.angular2.input';
 
@@ -16,7 +15,7 @@ import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-s
 import { RandomColorExpression } from './shared/pipes/randomColoredExpression';
 
 @NgModule({
-	declarations: [BravoCalculatorComponent, ThousandsSeparatorPipe, ClickMenuSelectionDirective, MenuMultipleSelectComponent, RandomColorExpression],
+	declarations: [BravoCalculatorComponent, ClickMenuSelectionDirective, MenuMultipleSelectComponent, RandomColorExpression],
 	imports: [CommonModule, FormsModule, WjCoreModule, WjInputModule],
 	exports: [BravoCalculatorComponent],
 	providers: [{ provide: INITIAL_STATE_CALCULATOR, useValue: initialStateCalculator }, { provide: RECEIVER_TOKEN, useValue: calculatorReceiver }, ReducerService, Store, CalculatorInvoker],

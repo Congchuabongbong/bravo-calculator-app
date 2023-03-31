@@ -81,3 +81,9 @@ export enum EOptionCmd {
 	CalculateAndPaste,
 	AutoCalculate,
 }
+
+export enum EFormatSymbol {
+	Comma = ',',
+	Dots = '.',
+	Space = ' ',
+}

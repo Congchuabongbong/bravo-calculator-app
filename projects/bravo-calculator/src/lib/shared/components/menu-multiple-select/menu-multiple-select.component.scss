@@ -1,11 +1,11 @@
 ::ng-deep .menu-multiple-select {
 	width: 255px;
-	height: 400px;
+	height: 395px;
 	background-color: #f0f0f0;
 	z-index: 9999;
 	box-shadow: 3px 3px 3px 0px #8e8e8e;
 	border: 1px solid #a0a0a0;
-	padding-top: 5px;
+	padding-top: 2px;
 }
 
 ::ng-deep .menu-multiple-select.active {
@@ -18,9 +18,7 @@
 	height: 100%;
 	padding-left: 10px;
 }
-.box-cmd {
-	margin-bottom: 5px;
-}
+
 .cmd-desc {
 	display: inline-block;
 	padding-left: 40px;
@@ -72,5 +70,5 @@
 	flex-shrink: 1;
 	flex-grow: 1;
 	padding-left: 8px;
-	font-weight: 450;
+	font-weight: 400;
 }

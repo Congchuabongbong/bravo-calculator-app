@@ -9,10 +9,11 @@
 	margin: auto auto;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+//
 
 .calculator {
 	&-container {
-		height: 285px;
+		height: 290px;
 		width: 365px;
 		background-color: rgb(255, 255, 255);
 		border: 1px solid #b3b3b3;
@@ -340,8 +341,4 @@
 ::ng-deep .ctx-menu {
 	width: 200px;
 	height: 400px;
-}
-
-.calculator-histories-expression.active {
-	justify-content: flex-end;
 }

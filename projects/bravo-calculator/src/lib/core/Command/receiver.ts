@@ -227,15 +227,7 @@ export class CalculatorReceiver {
 
 	private _isEndingSymbols(input: string) {
 		const ending = input.slice(-3);
-		return (
-			ending === EOperatorString.Addition ||
-			ending === EOperatorString.Division ||
-			ending === EOperatorEVal.Division ||
-			ending === EOperatorString.Multiplication ||
-			ending === EOperatorEVal.Multiplication ||
-			ending === EOperatorString.Subtraction ||
-			ending === EOperatorString.Equal
-		);
+		return ending === EOperatorString.Addition || ending === EOperatorString.Division || ending === EOperatorEVal.Division || ending === EOperatorString.Multiplication || ending === EOperatorEVal.Multiplication || ending === EOperatorString.Subtraction || ending === EOperatorString.Equal;
 	}
 
 	private _switchNextOperator() {

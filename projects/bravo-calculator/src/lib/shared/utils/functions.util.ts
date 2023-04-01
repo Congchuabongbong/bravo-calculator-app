@@ -4,7 +4,6 @@ export function formatNumber(numberStr: string, symbolFormat: EFormatSymbol = EF
 	let formattedStr = '';
 	let minus = '';
 	if (isReFormatOrigin && currentSymbol) {
-		debugger;
 		numberStr = unformattedNumber(numberStr, currentSymbol);
 	}
 	if (numberStr.includes('-')) {

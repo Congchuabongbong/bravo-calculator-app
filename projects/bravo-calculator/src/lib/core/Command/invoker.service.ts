@@ -3,7 +3,7 @@ import { RECEIVER_TOKEN } from '../../init-app/token';
 import { EOperatorType } from '../data-type/enum';
 import { CalculatorAction, ICalculatorPayload, ICalculatorState, ICommand } from '../data-type/type';
 import { Store } from '../redux/store.service';
-import { AddCommand } from './concrete-command';
+import { AddCommand, DividePercentCommand } from './concrete-command';
 import { DivideCommand } from './concrete-command/divide.command.class';
 import { EqualCommand } from './concrete-command/equal.command.class';
 import { MultiplyCommand } from './concrete-command/multiply.command.class';
@@ -42,6 +42,13 @@ export class CalculatorInvoker {
 	public clearAction(isClearAll: boolean = false) {
 		this._receiver.handleClean(isClearAll);
 	}
+
+	public dividePercentAction(operands: string[] | string = '') {
+		let command;
+		command = new DividePercentCommand(this._receiver, { operands });
+		this._executeCommand(command, EOperatorType.DividePercent);
+	}
+
 	//execute command end dispatch update state into store!
 	private _executeCommand(command: ICommand, type: EOperatorType): void {
 		//execute command
@@ -59,7 +66,7 @@ export class CalculatorInvoker {
 	}
 
 	public set isNexOperator(flag: boolean) {
-		this._receiver.isNexOperator = flag;
+		this._receiver.isNextOperator = flag;
 	}
 
 	public set isDeleteResultDisplay(flag: boolean) {

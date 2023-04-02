@@ -1,4 +1,4 @@
-import { EGroupMenu, EInputAction, EKeyCmdOption, EOperatorType, EOptionCmd } from './enum';
+import { EGroupMenu, EKeyCmdOption, EOperatorType, EOptionCmd } from './enum';
 
 export interface IReducer<S, P> {
 	reduce(state: S, payload: P): S;

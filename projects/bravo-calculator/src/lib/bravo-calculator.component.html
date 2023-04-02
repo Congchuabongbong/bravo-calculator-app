@@ -70,7 +70,7 @@
             </button>
             <button #btn class="btn btn--operator btn--backspace" (click)="onBackSpaceBtn(input)" #btnBackspace>
                 <i class="fa-solid fa-arrow-left"></i></button>
-            <button #btn class="btn btn--operator btn--percent">
+            <button #btn class="btn btn--operator btn--percent" (click)="onClickHandleDividePercentBtn(input)">
                 <i class="fa-light fa-percent"></i>
             </button>
             <button #btn class="btn btn--equal" (click)="onClickEndCalculationBtn(input)">

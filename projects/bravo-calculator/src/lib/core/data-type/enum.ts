@@ -18,6 +18,7 @@ export enum EOperatorString {
 	Multiplication = ' x ',
 	Division = ' ÷ ',
 	Equal = ' = ',
+	DividePercent = '',
 }
 
 export enum EOperatorEVal {
@@ -35,6 +36,7 @@ export enum EEvenKey {
 	Subtraction = '-',
 	Multiplication = '*',
 	Division = '/',
+	DivisionPercent = '%',
 	Equal = '=',
 	Decimal = '.',
 	Abs = 'abs',

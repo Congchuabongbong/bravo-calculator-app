@@ -8,7 +8,7 @@ import { ReducerService } from './core/redux/reducers.service';
 import { Store } from './core/redux/store.service';
 import { defaultMenuOpts } from './init-app/defaultMenuOpts';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
-import { convertStrFormatType, formatNumber, isIntStr, unformattedNumber } from './shared/utils';
+import { formatNumber, isIntStr, unformattedNumber } from './shared/utils';
 
 @Component({
 	selector: 'lib-bravo-calculator',
@@ -58,10 +58,11 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		{ key: EEvenKey.Equal, class: 'btn--equal' },
 		{ key: EEvenKey.Decimal, class: 'btn--decimal' },
 		{ key: EEvenKey.Abs, class: 'btn--abs' },
+		{ key: EEvenKey.DivisionPercent, class: 'btn--percent' },
 	];
 	//*Input Decorator
 	@Input() titleTooltipHistories: string = 'Click đúp chuột vào một số bất kỳ để lấy giá trị số đó cho máy tính';
-	@Input() initsPostValue: string[] = ['12', '4444', '123123', '12315654'];
+	@Input() initsPostValue!: string[];
 	@Input('menuOptions') set menuCommandOptions(val: OptionsMenu[]) {
 		this._getSelectedOptionInCmd(val);
 		this._menuCommandOptions = val;
@@ -87,7 +88,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			if (this.initsPostValue) {
 				if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate)) {
 					this.calculatorInvoker.addAction(this.initsPostValue);
-					this._inputRef.nativeElement.value = this._formatThousandsSeparated(convertStrFormatType(this.calculatorInvoker.result));
+					this._inputRef.nativeElement.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
 				}
 				this._previousPostValue = this.initsPostValue;
 			}
@@ -100,7 +101,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 				let isReCalculate = JSON.stringify(this._previousPostValue) !== JSON.stringify(event.data);
 				isReCalculate && (this._previousPostValue = event.data);
 				this.calculatorInvoker.addAction(event.data, isReCalculate);
-				this._inputRef.nativeElement.value = this._formatThousandsSeparated(convertStrFormatType(this.calculatorInvoker.result));
+				this._inputRef.nativeElement.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
 			}
 		});
 
@@ -109,7 +110,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	//**Lifecycle here
 	ngOnInit(): void {
-		// this._saveLocalStorageCurrentMenuOptions();
+		this._saveLocalStorageCurrentMenuOptions();
 		// setInterval(() => {
 		// 	this._receiverBroadcast.postMessage(this.testRandomRangeArray(4, 10, 100));
 		// }, 1000);
@@ -143,49 +144,63 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	//**Handle events
-	public onClickHandleAddBtn(event: HTMLTextAreaElement) {
+	public onClickHandleAddBtn(event: HTMLTextAreaElement): void {
 		this._handleActiveBtn(EEvenKey.Addition);
 		let value = event.value;
-		if (value === '0.') value = value.concat('0');
+		value = this._changeIntToDecimal(value);
 		this.calculatorInvoker.addAction(unformattedNumber(value));
 		event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
 		this._resetSuggest();
 	}
 
-	public onClickHandleSubtractBtn(event: HTMLTextAreaElement) {
+	public onClickHandleSubtractBtn(event: HTMLTextAreaElement): void {
 		this._handleActiveBtn(EEvenKey.Subtraction);
 		let value = event.value;
-		if (value === '0.') value = value.concat('0');
+		value = this._changeIntToDecimal(value);
 		this.calculatorInvoker.subtractAction(unformattedNumber(value));
 		event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
 		this._resetSuggest();
 	}
 
-	public onClickHandleMultiplyBtn(event: HTMLTextAreaElement) {
+	public onClickHandleMultiplyBtn(event: HTMLTextAreaElement): void {
 		this._handleActiveBtn(EEvenKey.Multiplication);
 		let value = event.value;
-		if (value === '0.') value = value.concat('0');
+		value = this._changeIntToDecimal(value);
 		this.calculatorInvoker.multiplyAction(unformattedNumber(value));
 		event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
 		this._resetSuggest();
 	}
 
-	public onClickHandleDivideBtn(event: HTMLTextAreaElement) {
+	public onClickHandleDivideBtn(event: HTMLTextAreaElement): void {
 		this._handleActiveBtn(EEvenKey.Division);
 		let value = event.value;
-		if (value === '0.') value = value.concat('0');
+
+		value = this._changeIntToDecimal(value);
 		this.calculatorInvoker.divideAction(unformattedNumber(value));
 		event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
 		this._resetSuggest();
 	}
 
-	public onClickEndCalculationBtn(event: HTMLTextAreaElement) {
+	public onClickHandleDividePercentBtn(event: HTMLTextAreaElement): void {
+		this._handleActiveBtn(EEvenKey.DivisionPercent);
+		let value = event.value;
+		value = this._changeIntToDecimal(value);
+		if (this.calculatorInvoker.result !== '0') {
+			this.calculatorInvoker.dividePercentAction(unformattedNumber(value));
+		}
+		event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
+		this._resetSuggest();
+	}
+
+	public onClickEndCalculationBtn(event: HTMLTextAreaElement): void {
 		this._handleActiveBtn(EEvenKey.Equal);
 		let value = event.value;
-		if (value === '0.') value = value.concat('0');
+		value = this._changeIntToDecimal(value);
 		this.calculatorInvoker.endCalculationAction(unformattedNumber(value));
-		!this.calculatorInvoker.isDeleteResultDisplay && (event.value = this._formatThousandsSeparated(this.calculatorInvoker.result));
-		this._resetSuggest();
+		if (!this.calculatorInvoker.isDeleteResultDisplay) {
+			event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
+			this._resetSuggest();
+		}
 	}
 
 	public onClickNumbersPadBtn(event: string): void {
@@ -265,7 +280,6 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			this.onClickNumbersPadBtn(event.key);
 		} else {
 			//**handle operators here:
-
 			switch (event.key) {
 				case EEvenKey.Esc:
 					this._handleCmdEnterOrEsc(EKeyCmdOption.Escape);
@@ -293,6 +307,10 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 					break;
 				case EEvenKey.Decimal:
 					this.onDecimalBtn(this._inputRef.nativeElement);
+					break;
+				case EEvenKey.DivisionPercent:
+					this.onClickHandleDividePercentBtn(this._inputRef.nativeElement);
+					break;
 			}
 		}
 	}
@@ -461,7 +479,6 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	private _formatThousandsSeparated(valStr: string) {
 		if (valStr.length <= 0) return valStr;
 		else if (unformattedNumber(valStr).length > 29) return unformattedNumber(valStr);
-
 		let decimalPart = '';
 		if (valStr.includes('.')) {
 			const parts = valStr.split('.');
@@ -470,6 +487,13 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 			return `${formatNumber(valStr.replace(/ /g, ''))}.${decimalPart}`;
 		}
 		return formatNumber(valStr.replace(/ /g, ''));
+	}
+
+	private _changeIntToDecimal(numberStr: string): string {
+		if (/^\d+\.$/.test(numberStr)) {
+			return numberStr + '0';
+		}
+		return numberStr;
 	}
 	private testRandomRangeArray(length: number, min: number, max: number) {
 		return Array.from({ length }, () => (Math.floor(Math.random() * (max - min + 1)) + min).toString());

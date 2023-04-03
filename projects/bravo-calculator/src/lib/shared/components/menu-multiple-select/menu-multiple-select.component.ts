@@ -5,7 +5,7 @@ import { OptionCmd, OptionsMenu } from '../../../core/data-type/type';
 @Component({
 	selector: 'menu-multiple-select',
 	templateUrl: './menu-multiple-select.component.html',
-	styleUrls: ['./menu-multiple-select.component.scss'],
+	styleUrls: ['./menu-multiple-select.component.scss', '../../../bravo-calculator.component.base.scss'],
 })
 export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 	//*Declaration here
@@ -58,11 +58,7 @@ export class MenuMultipleSelectComponent implements OnInit, OnDestroy {
 			if (selectedOptions.length === 1) {
 				if (optionCmd.value) {
 					let currentOptExist = selectedOptions[0];
-					if (
-						currentOptExist.group === EGroupMenu.Default ||
-						(currentOptExist.group === optionCmd.group && currentOptExist.name !== optionCmd.name) ||
-						(currentOptExist.group !== optionCmd.group && !this._canMerge(currentOptExist, optionCmd))
-					) {
+					if (currentOptExist.group === EGroupMenu.Default || (currentOptExist.group === optionCmd.group && currentOptExist.name !== optionCmd.name) || (currentOptExist.group !== optionCmd.group && !this._canMerge(currentOptExist, optionCmd))) {
 						this.updateCheckedValue(cmd, optionCmd, currentOptExist);
 					} else {
 						this._canMerge(currentOptExist, optionCmd) && this.updateCheckedValue(cmd, optionCmd);

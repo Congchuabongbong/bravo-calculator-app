@@ -1,11 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
 import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/command/invoker.service';
-import { EEvenKey, EFormatSymbol, EKeyCmdOption, EOptionCmd } from './core/data-type/enum';
-import { CalculatorAction, ICalculatorPayload, ICalculatorState, OptionCmd, OptionsMenu } from './core/data-type/type';
-import { CalculatorReducer } from './core/redux/calculatorReduce';
-import { ReducerService } from './core/redux/reducers.service';
-import { Store } from './core/redux/store.service';
+import { EEvenKey, EFormatSymbol, EInputAction, EKeyCmdOption, EOptionCmd } from './core/data-type/enum';
+import { OptionCmd, OptionsMenu } from './core/data-type/type';
 import { defaultMenuOpts } from './init-app/defaultMenuOpts';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
 import { formatNumber, isIntStr, unformattedNumber } from './shared/utils';
@@ -13,8 +10,7 @@ import { formatNumber, isIntStr, unformattedNumber } from './shared/utils';
 @Component({
 	selector: 'lib-bravo-calculator',
 	templateUrl: './bravo-calculator.component.html',
-	styleUrls: ['./bravo-calculator.component.scss'],
-	styles: [],
+	styleUrls: ['./bravo-calculator.component.scss', './bravo-calculator.component.base.scss'],
 })
 export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewInit {
 	//**Declaration here */
@@ -62,7 +58,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	];
 	//*Input Decorator
 	@Input() titleTooltipHistories: string = 'Click đúp chuột vào một số bất kỳ để lấy giá trị số đó cho máy tính';
-	@Input() initsPostValue!: string[];
+	@Input() initsPostValue: string[] = ['312', '3513'];
 	@Input('menuOptions') set menuCommandOptions(val: OptionsMenu[]) {
 		this._getSelectedOptionInCmd(val);
 		this._menuCommandOptions = val;
@@ -77,8 +73,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	//**Constructor here */
-	constructor(public calculationStore: Store<ICalculatorState, ICalculatorPayload>, private _calculationReducers: ReducerService<ICalculatorState, CalculatorAction>, public calculatorInvoker: CalculatorInvoker, private renderer2: Renderer2, private _cdr: ChangeDetectorRef) {
-		this._calculationReducers.register(new CalculatorReducer());
+	constructor(public calculatorInvoker: CalculatorInvoker, private renderer2: Renderer2, private _cdr: ChangeDetectorRef) {
 		this._receiverBroadcast = new BroadcastChannel('BravoCalculatorApp');
 	}
 
@@ -174,7 +169,6 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	public onClickHandleDivideBtn(event: HTMLTextAreaElement): void {
 		this._handleActiveBtn(EEvenKey.Division);
 		let value = event.value;
-
 		value = this._changeIntToDecimal(value);
 		this.calculatorInvoker.divideAction(unformattedNumber(value));
 		event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
@@ -205,6 +199,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	public onClickNumbersPadBtn(event: string): void {
 		this._handleActiveBtn(event);
+		this.calculatorInvoker.currentInputAction = EInputAction.Event;
 		if (this._inputRef.nativeElement.value === '0' || this.calculatorInvoker.isDeleteResultDisplay === false) {
 			this._inputRef.nativeElement.value = '';
 			this._resetFontSizeInput();
@@ -213,7 +208,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		this.generateSuggest(this._inputRef.nativeElement.value);
 		this._changeFontSizeInput(this._inputRef.nativeElement.value);
 		this.calculatorInvoker.isDeleteResultDisplay = true;
-		this.calculatorInvoker.isNexOperator = false;
+		this.calculatorInvoker.isNextOperator = false;
 	}
 
 	public onBackSpaceBtn(event: HTMLTextAreaElement): void {
@@ -322,7 +317,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		if (selObj && this._regexDigit.test(selObj.toString().trim())) {
 			this._inputRef.nativeElement.value = this._formatThousandsSeparated(selObj.toString().trim());
 			this.calculatorInvoker.isDeleteResultDisplay = true;
-			this.calculatorInvoker.isNexOperator = false;
+			this.calculatorInvoker.isNextOperator = false;
 			this.generateSuggest(this._inputRef.nativeElement.value);
 			this._changeFontSizeInput(this._inputRef.nativeElement.value);
 		}

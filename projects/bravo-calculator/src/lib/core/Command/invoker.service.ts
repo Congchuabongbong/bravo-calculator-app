@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
 import { RECEIVER_TOKEN } from '../../init-app/token';
-import { EOperatorType } from '../data-type/enum';
+import { EInputAction, EOperatorType } from '../data-type/enum';
 import { CalculatorAction, ICalculatorPayload, ICalculatorState, ICommand } from '../data-type/type';
-import { Store } from '../redux/store.service';
+
 import { AddCommand, DividePercentCommand } from './concrete-command';
 import { DivideCommand } from './concrete-command/divide.command.class';
 import { EqualCommand } from './concrete-command/equal.command.class';
@@ -12,30 +12,30 @@ import { CalculatorReceiver } from './receiver';
 
 @Injectable()
 export class CalculatorInvoker {
-	constructor(private _store: Store<ICalculatorState, CalculatorAction>, @Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
+	constructor(@Inject(RECEIVER_TOKEN) private _receiver: CalculatorReceiver) {}
 
 	public addAction(operands: string[] | string, isRebuildExpression: boolean = false) {
 		const command = new AddCommand(this._receiver, { operands, isRebuildExpression });
 		this._executeCommand(command, EOperatorType.Add);
 	}
 
-	public subtractAction(operands: string[] | string) {
-		const command = new SubtractCommand(this._receiver, { operands });
+	public subtractAction(operands: string[] | string, isRebuildExpression: boolean = false) {
+		const command = new SubtractCommand(this._receiver, { operands, isRebuildExpression });
 		this._executeCommand(command, EOperatorType.Subtract);
 	}
 
-	public multiplyAction(operands: string[] | string) {
-		const command = new MultiplyCommand(this._receiver, { operands });
+	public multiplyAction(operands: string[] | string, isRebuildExpression: boolean = false) {
+		const command = new MultiplyCommand(this._receiver, { operands, isRebuildExpression });
 		this._executeCommand(command, EOperatorType.Multiple);
 	}
 
-	public divideAction(operands: string[] | string) {
-		const command = new DivideCommand(this._receiver, { operands });
+	public divideAction(operands: string[] | string, isRebuildExpression: boolean = false) {
+		const command = new DivideCommand(this._receiver, { operands, isRebuildExpression });
 		this._executeCommand(command, EOperatorType.Divide);
 	}
 
-	public endCalculationAction(operands: string[] | string) {
-		const command = new EqualCommand(this._receiver, { operands });
+	public endCalculationAction(operands: string[] | string, isRebuildExpression: boolean = false) {
+		const command = new EqualCommand(this._receiver, { operands, isRebuildExpression });
 		this._executeCommand(command, EOperatorType.Equals);
 	}
 
@@ -43,9 +43,9 @@ export class CalculatorInvoker {
 		this._receiver.handleClean(isClearAll);
 	}
 
-	public dividePercentAction(operands: string[] | string = '') {
+	public dividePercentAction(operands: string[] | string = '', isRebuildExpression: boolean = false) {
 		let command;
-		command = new DividePercentCommand(this._receiver, { operands });
+		command = new DividePercentCommand(this._receiver, { operands, isRebuildExpression });
 		this._executeCommand(command, EOperatorType.DividePercent);
 	}
 
@@ -65,8 +65,12 @@ export class CalculatorInvoker {
 		return this._receiver.calculationHistories;
 	}
 
-	public set isNexOperator(flag: boolean) {
+	public set isNextOperator(flag: boolean) {
 		this._receiver.isNextOperator = flag;
+	}
+
+	public get isNextOperator() {
+		return this._receiver.isNextOperator;
 	}
 
 	public set isDeleteResultDisplay(flag: boolean) {
@@ -79,6 +83,14 @@ export class CalculatorInvoker {
 
 	public get result(): string {
 		return this._receiver.result;
+	}
+
+	get currentInputAction(): EInputAction {
+		return this._receiver.currentInputAction;
+	}
+
+	set currentInputAction(inputAct: EInputAction) {
+		this._receiver.currentInputAction = inputAct;
 	}
 
 	private creatorPayload(): ICalculatorPayload {

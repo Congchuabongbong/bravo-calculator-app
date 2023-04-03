@@ -4,3 +4,4 @@
 //public here
 export * from './lib/bravo-calculator.component';
 export * from './lib/bravo-calculator.module';
+export * from './lib/core/data-type';

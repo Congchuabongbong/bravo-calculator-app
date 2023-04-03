@@ -1,9 +1,12 @@
 {
 	"name": "ng-bravo-calculator",
-	"version": "0.0.4",
+	"version": "0.1.0",
 	"peerDependencies": {
 		"@angular/common": "*",
-		"@angular/core": "*"
+		"@angular/core": "*",
+		"@grapecity/wijmo.all": "*",
+		"@grapecity/wijmo.angular2.all": "*",
+		"@grapecity/wijmo.styles": "*"
 	},
 	"dependencies": {
 		"tslib": "^2.0.0"

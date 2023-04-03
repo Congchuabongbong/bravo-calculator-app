@@ -1,4 +1,4 @@
-import { EGroupMenu, EKeyCmdOption, EOperatorType, EOptionCmd } from './enum';
+import { EGroupMenu, EInputAction, EKeyCmdOption, EOperatorType, EOptionCmd } from './enum';
 
 export interface IReducer<S, P> {
 	reduce(state: S, payload: P): S;
@@ -14,7 +14,6 @@ export type ObjRequestCommand = {
 	isRebuildExpression?: boolean;
 };
 
-//TODO: optimized type state and payload for store to update into reducer
 export type CalculatorAction = {
 	type: EOperatorType;
 	payload?: ICalculatorPayload;
@@ -35,3 +34,8 @@ export type OptionsMenu = {
 };
 
 export type OptionCmd = { name: string; value: boolean; group: EGroupMenu; optCmdKey: EOptionCmd };
+
+export type MessageCalculator = {
+	gridId: number;
+	operands: string[];
+};

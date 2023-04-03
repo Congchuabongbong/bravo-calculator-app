@@ -55,9 +55,8 @@ export enum EEvenKey {
 }
 
 export enum EInputAction {
-	Type,
-	Select,
-	Click,
+	Event,
+	Signal,
 }
 
 export enum EKeyCmdOption {

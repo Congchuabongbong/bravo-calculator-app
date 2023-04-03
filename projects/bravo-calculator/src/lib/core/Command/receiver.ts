@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { convertStrFormatType } from '../../shared/utils';
 
-import { EOperatorEVal, EOperatorString } from '../data-type/enum';
+import { EInputAction, EOperatorEVal, EOperatorString } from '../data-type/enum';
 import { ObjRequestCommand } from '../data-type/type';
 
 @Injectable()
@@ -9,6 +9,7 @@ export class CalculatorReceiver {
 	//**Declaration here */
 	public result: string = '0';
 	private _currentOperator!: EOperatorString;
+	private _currentInputAction!: EInputAction;
 	private _isNextOperator!: boolean;
 	private _isDeleteResultDisplay!: boolean;
 	private _expressionBuilder!: string; // build expression
@@ -50,11 +51,21 @@ export class CalculatorReceiver {
 		this._isStartBuildExpression && this.isNextOperator && this._switchNextOperator();
 	}
 
+	public set currentInputAction(action: EInputAction) {
+		this._currentInputAction = action;
+	}
+	public get currentInputAction() {
+		return this._currentInputAction;
+	}
 	constructor() {
 		this.handleClean(true);
 	}
 	//=========================================================================================================================================================================================================================
 	//**Handle Command here!
+	public handleReceiveSignalAddCommand(request: ObjRequestCommand) {
+		this._executeCommand(request, EOperatorString.Addition);
+	}
+
 	//**add
 	public handleAddCommand(request: ObjRequestCommand): void {
 		this._executeCommand(request, EOperatorString.Addition);
@@ -120,13 +131,12 @@ export class CalculatorReceiver {
 		}
 		this.currentOperator = operatorString;
 		if (this.isNextOperator) {
-			if (!isRebuildExpression) return;
-			this._buildExpressionString(operands, isRebuildExpression);
-			this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
-
+			if (this.currentInputAction === EInputAction.Signal) {
+				this._buildExpressionString(operands, isRebuildExpression);
+				this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
+			}
 			return;
 		}
-
 		this._buildExpressionString(operands);
 		this._executeExpression(this._removeTrailingSymbols(this._expressionEvalBuilder));
 	}
@@ -140,7 +150,8 @@ export class CalculatorReceiver {
 		//reset value
 		this._expressionBuilder = '';
 		this._expressionEvalBuilder = '';
-		this._currentOperator = EOperatorString.Addition;
+		this.currentOperator = EOperatorString.Addition;
+		this.currentInputAction = EInputAction.Event;
 		this.result = '0';
 		if (isClearAll) {
 			this._calculationHistories = [];
@@ -239,7 +250,7 @@ export class CalculatorReceiver {
 			equationEval = operand + operatorEval;
 		}
 
-		if (isRebuildExpression) {
+		if (isRebuildExpression && this.currentInputAction === EInputAction.Signal) {
 			this._expressionBuilder = this._expressionBuilder.replace(this._previousExpressionBuilder, '');
 			this._expressionEvalBuilder = this._expressionEvalBuilder.replace(this._previousExpressionEvalBuilder, '');
 		}

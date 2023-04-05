@@ -1,4 +1,4 @@
-import { EFormatSymbol } from '../../core/data-type/enum';
+import { EFormatSymbol } from '../../core/data-type';
 
 export function formatNumber(numberStr: string, symbolFormat: EFormatSymbol = EFormatSymbol.Space, isReFormatOrigin: boolean = false, currentSymbol?: EFormatSymbol): string {
 	let formattedStr = '';

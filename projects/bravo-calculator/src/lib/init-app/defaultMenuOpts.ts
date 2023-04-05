@@ -1,4 +1,4 @@
-import { EGroupMenu, EKeyCmdOption, EOptionCmd } from '../core/data-type/enum';
+import { EGroupMenu, EKeyCmdOption, EOptionCmd } from '../core/data-type';
 
 export const defaultMenuOpts = [
 	{

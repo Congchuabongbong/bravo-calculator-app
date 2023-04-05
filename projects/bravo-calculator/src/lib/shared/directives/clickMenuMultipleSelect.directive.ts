@@ -1,5 +1,5 @@
+import { Directive, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, Renderer2 } from '@angular/core';
 import { PopupPosition } from '@grapecity/wijmo';
-import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, Renderer2 } from '@angular/core';
 import { MenuMultipleSelectComponent } from '../components/menu-multiple-select/menu-multiple-select.component';
 
 @Directive({ selector: '[clickMenu]' })

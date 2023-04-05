@@ -1,4 +1,4 @@
-import { ICommand, ObjRequestCommand } from '../../data-type/type';
+import { ICommand, ObjRequestCommand } from '../../data-type';
 import { CalculatorReceiver } from '../receiver';
 
 export class MultiplyCommand implements ICommand {

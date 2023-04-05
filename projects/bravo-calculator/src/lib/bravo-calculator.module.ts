@@ -9,9 +9,9 @@ import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-s
 import { ClickMenuSelectionDirective } from './shared/directives/clickMenuMultipleSelect.directive';
 import { RandomColorExpression } from './shared/pipes/randomColoredExpression';
 @NgModule({
-    declarations: [BravoCalculatorComponent, ClickMenuSelectionDirective, MenuMultipleSelectComponent, RandomColorExpression],
-    imports: [CommonModule, FormsModule, WjCoreModule, WjInputModule],
-    exports: [BravoCalculatorComponent],
-    providers: [CalculatorInvoker],
+	declarations: [BravoCalculatorComponent, ClickMenuSelectionDirective, MenuMultipleSelectComponent, RandomColorExpression],
+	imports: [CommonModule, FormsModule, WjCoreModule, WjInputModule],
+	exports: [BravoCalculatorComponent],
+	providers: [CalculatorInvoker],
 })
 export class BravoCalculatorModule {}

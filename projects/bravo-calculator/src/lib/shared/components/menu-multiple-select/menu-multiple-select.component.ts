@@ -1,6 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
-import { EGroupMenu } from '../../../core/data-type/enum';
-import { OptionCmd, OptionsMenu } from '../../../core/data-type/type';
+import { OptionCmd, OptionsMenu, EGroupMenu } from '../../../core/data-type';
 
 @Component({
 	selector: 'menu-multiple-select',

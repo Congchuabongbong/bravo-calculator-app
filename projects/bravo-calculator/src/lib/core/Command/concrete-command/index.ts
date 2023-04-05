@@ -4,7 +4,6 @@ export * from './multiply.command.class';
 export * from './divide.command.class';
 export * from './dividePercent.command.class';
 export * from './backSpace.command.class';
-export * from './absolute.command.class';
-export * from './decimal.command.class';
 export * from './clear.command.class';
 export * from './equal.command.class';
+export * from './signal.command.class';

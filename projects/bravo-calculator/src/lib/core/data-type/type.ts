@@ -1,41 +1,32 @@
-import { EGroupMenu, EInputAction, EKeyCmdOption, EOperatorType, EOptionCmd } from './enum';
+import { EGroupMenu, EKeyCmdOption, EOperatorString, EOptionCmd } from './enum';
 
 export interface IReducer<S, P> {
-	reduce(state: S, payload: P): S;
+    reduce(state: S, payload: P): S;
 }
 export interface ICommand {
-	execute: () => void;
-	undo?: () => void;
-	cancel?: () => void;
+    execute: () => void;
+    undo?: () => void;
+    cancel?: () => void;
 }
 
 export type ObjRequestCommand = {
-	operands: string[] | string;
-	isRebuildExpression?: boolean;
+    operands: string[] | string;
+    operator: EOperatorString;
 };
-
-export type CalculatorAction = {
-	type: EOperatorType;
-	payload?: ICalculatorPayload;
-};
-
-export interface ICalculatorState {
-	calculationHistories: string[]; // This is optional as it's not used in all actions
-	currentExpression: string;
-	result: number;
-}
-
-export interface ICalculatorPayload extends ICalculatorState {}
 
 export type OptionsMenu = {
-	descCmd: string;
-	keyCmd: EKeyCmdOption;
-	optionsCmd: OptionCmd[];
+    descCmd: string;
+    keyCmd: EKeyCmdOption;
+    optionsCmd: OptionCmd[];
 };
 
 export type OptionCmd = { name: string; value: boolean; group: EGroupMenu; optCmdKey: EOptionCmd };
 
-export type MessageCalculator = {
-	gridId: number;
-	operands: string[];
+export type PayloadChannel = {
+    gridId: number;
+    operands: string[];
+};
+
+export type StatusCalculator = {
+    isTurnOn: boolean;
 };

@@ -58,7 +58,6 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	];
 	//*Input Decorator
 	@Input() titleTooltipHistories: string = 'Click đúp chuột vào một số bất kỳ để lấy giá trị số đó cho máy tính';
-	@Input() initsPostValue: string[] = ['312', '3513'];
 	@Input('menuOptions') set menuCommandOptions(val: OptionsMenu[]) {
 		this._getSelectedOptionInCmd(val);
 		this._menuCommandOptions = val;
@@ -86,17 +85,6 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	ngAfterViewInit(): void {
-		//set first post calculator
-		const timeout = setTimeout(() => {
-			if (this.initsPostValue) {
-				if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate)) {
-					this.calculatorInvoker.currentInputAction = EInputAction.Signal;
-					this.calculatorInvoker.handleSignalAction(EOperatorString.Addition, this.initsPostValue);
-					this._inputRef.nativeElement.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
-				}
-			}
-			clearTimeout(timeout);
-		});
 		//subscribe chanel
 		this._receiverDataChannel.addEventListener('message', (event: MessageEvent<string[]>) => {
 			if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate) && event.data.length > 0) {

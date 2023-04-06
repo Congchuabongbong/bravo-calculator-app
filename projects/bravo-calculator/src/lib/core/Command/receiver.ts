@@ -259,15 +259,21 @@ export class CalculatorReceiver {
 			equationEval = '('.concat(equationEval).concat(')');
 			equationEval += nextOperatorEval;
 		}
-		if (this.currentInputAction === EInputAction.Signal && isRebuildExpression) {
-			//trường hợp nếu rebuild lại expression
-			this._expressionBuilder = this._expressionBuilder.replace(this._previousExpressionBuilder, '');
-			this._expressionEvalBuilder = this._expressionEvalBuilder.replace(this._previousExpressionEvalBuilder, '');
-		}
-		this._previousExpressionBuilder = equation; //cache the previous expression
-		this._previousExpressionEvalBuilder = equationEval;
-		this._expressionBuilder += equation;
-		this._expressionEvalBuilder += equationEval;
+
+        if(this.currentInputAction === EInputAction.Event) {
+            this._expressionBuilder += equation;
+            this._expressionEvalBuilder += equationEval;
+        }else {
+            if(isRebuildExpression) {
+                this._expressionBuilder = this._previousExpressionBuilder + equation;
+                this._expressionEvalBuilder = this._previousExpressionEvalBuilder + equationEval;
+            }else {
+                this._previousExpressionBuilder = this._expressionBuilder; //cache the previous expression
+                this._previousExpressionEvalBuilder = this._expressionEvalBuilder;
+                this._expressionBuilder += equation;
+                this._expressionEvalBuilder += equationEval;
+            }
+        }
 		//sau khi build xong expression bật flag cho phép switch các toán tử và replace trong trường hợp bắn signal
 		this.isNextOperator = true;
 		this.isNextSignal = false;

@@ -12,6 +12,8 @@ export class CalculatorReceiver {
 	private _isNextSignal!: boolean;
 	private _isDeleteResultDisplay!: boolean;
 	private _expressionBuilder!: string; // build expression
+	private _previousExpressionBuilder!: string;
+	private _previousExpressionEvalBuilder!: string;
 	private _expressionEvalBuilder!: string; // build eval expression
 	private _isStartBuildExpression!: boolean;
 	private _calculationHistories!: string[]; // cache expression calculation
@@ -220,9 +222,6 @@ export class CalculatorReceiver {
 		this._expressionBuilder = '';
 		this._expressionEvalBuilder = '';
 	}
-
-	private _previousExpressionBuilder = '';
-	private _previousExpressionEvalBuilder = '';
 	//**save calculate expression */
 	private _saveCompleteExpressions(expression: string) {
 		if (this._calculationHistories.length < 5 && expression.length > 0) this._calculationHistories.push(expression);
@@ -260,20 +259,20 @@ export class CalculatorReceiver {
 			equationEval += nextOperatorEval;
 		}
 
-        if(this.currentInputAction === EInputAction.Event) {
-            this._expressionBuilder += equation;
-            this._expressionEvalBuilder += equationEval;
-        }else {
-            if(isRebuildExpression) {
-                this._expressionBuilder = this._previousExpressionBuilder + equation;
-                this._expressionEvalBuilder = this._previousExpressionEvalBuilder + equationEval;
-            }else {
-                this._previousExpressionBuilder = this._expressionBuilder; //cache the previous expression
-                this._previousExpressionEvalBuilder = this._expressionEvalBuilder;
-                this._expressionBuilder += equation;
-                this._expressionEvalBuilder += equationEval;
-            }
-        }
+		if (this.currentInputAction === EInputAction.Event) {
+			this._expressionBuilder += equation;
+			this._expressionEvalBuilder += equationEval;
+		} else {
+			if (isRebuildExpression) {
+				this._expressionBuilder = this._previousExpressionBuilder + equation;
+				this._expressionEvalBuilder = this._previousExpressionEvalBuilder + equationEval;
+			} else {
+				this._previousExpressionBuilder = this._expressionBuilder; //cache the previous expression
+				this._previousExpressionEvalBuilder = this._expressionEvalBuilder;
+				this._expressionBuilder += equation;
+				this._expressionEvalBuilder += equationEval;
+			}
+		}
 		//sau khi build xong expression bật flag cho phép switch các toán tử và replace trong trường hợp bắn signal
 		this.isNextOperator = true;
 		this.isNextSignal = false;

@@ -72,7 +72,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	//**Constructor here */
-	constructor(public calculatorInvoker: CalculatorInvoker, private renderer2: Renderer2, private _cdr: ChangeDetectorRef) {
+	constructor(private _el: ElementRef, public calculatorInvoker: CalculatorInvoker, private renderer2: Renderer2, private _cdr: ChangeDetectorRef) {
 		this._receiverDataChannel = new BroadcastChannel(ECalculationChannel.DataCommunication);
 		this._senderStateChannel = new BroadcastChannel(ECalculationChannel.StateCommunication);
 		//lắng nghe chéo
@@ -110,6 +110,8 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		this._receiverDataChannel.close();
 		this._senderStateChannel.close();
 		this._tooltipHistories.dispose();
+		const elClone = this._el.nativeElement.cloneNode(true);
+		document.replaceChild(this._el.nativeElement, elClone);
 	}
 
 	private _onCloseCalculator() {

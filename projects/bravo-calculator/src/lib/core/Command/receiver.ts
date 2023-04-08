@@ -157,6 +157,8 @@ export class CalculatorReceiver {
 		//reset value
 		this._expressionBuilder = '';
 		this._expressionEvalBuilder = '';
+		this._previousExpressionBuilder = '';
+		this._previousExpressionEvalBuilder = '';
 		this.currentOperator = EOperatorString.Addition;
 		this.currentInputAction = EInputAction.Event;
 		this.result = '0';

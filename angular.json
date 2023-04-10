@@ -29,7 +29,15 @@
 						"polyfills": "src/polyfills.ts",
 						"tsConfig": "tsconfig.app.json",
 						"aot": true,
-						"assets": ["src/favicon.ico", "src/assets"],
+						"assets": [
+							"src/favicon.ico",
+							"src/assets",
+							{
+								"glob": "**/*",
+								"input": "./projects/bravo-calculator/src/assets",
+								"output": "assets"
+							}
+						],
 						"styles": ["node_modules/font-awesome/css/font-awesome.min.css", "src/styles.scss"],
 						"scripts": []
 					},

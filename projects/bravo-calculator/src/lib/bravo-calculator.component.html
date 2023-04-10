@@ -10,8 +10,9 @@
 
     <div class="calculator-screen">
         <div class="calculator-screen_top">
-            <span class="calculator-screen_top-left" #btnMenu clickMenu [menuOption]="menu">
-                <i class="fa-solid fa-ellipsis-vertical"></i>
+            <span class="calculator-screen_top-left">
+                <img class="icon-menu-options" src="assets/icons/menu-options.svg" alt="" #btnMenu clickMenu
+                    [menuOption]="menu">
             </span>
 
             <div class="calculator-screen_top-right right">
@@ -54,27 +55,31 @@
             <!--  -->
             <button #btn class="btn btn--decimal" (click)="onDecimalBtn(input)">.</button>
             <button #btn class="btn btn--operator btn--abs" (click)="onAbsBtn(input)">
-                <i class="fa-solid fa-plus-minus"></i></button>
+                <img src="assets/icons/plus-minus.svg" alt="">
+            </button>
             <button #btn class="btn btn--operator btn--divide" (click)="onClickHandleDivideBtn(input)">
-                <i class="fa-solid fa-divide"></i></button>
+                <img src="assets/icons/divide-operator.svg" alt="">
+            </button>
             <button #btn class="btn btn--operator btn--multiple" (click)="onClickHandleMultiplyBtn(input)">
-                <i class="fa-solid fa-xmark"></i></button>
+                <img src="assets/icons/multiply-operator.svg" alt="">
+            </button>
             <button #btn class="btn btn--operator btn--subtract" (click)="onClickHandleSubtractBtn(input)">
-                <i class="fa-solid fa-minus"></i>
+                <img src="assets/icons/minus-operator.svg" alt="">
             </button>
             <button #btn class="btn btn--operator btn--add" (click)="onClickHandleAddBtn(input)">
-                <i class="fa-solid fa-plus"></i>
+                <img src="assets/icons/plus-operator.svg" alt="">
             </button>
             <button #btn class="btn btn--clear" (click)="onClearBtn(input)">
-                <i class="fa-solid fa-c"></i>
+                <img src="assets/icons/clear.svg" alt="">
             </button>
             <button #btn class="btn btn--operator btn--backspace" (click)="onBackspaceBtn(input)" #btnBackspace>
-                <i class="fa-solid fa-arrow-left"></i></button>
+                <img src="assets/icons/backspace.svg" alt="">
+            </button>
             <button #btn class="btn btn--operator btn--percent" (click)="onClickHandleDividePercentBtn(input)">
-                <i class="fa fa-percent" aria-hidden="true"></i>
+                <img src="assets/icons/percent-operator.svg" alt="">
             </button>
             <button #btn class="btn btn--equal" (click)="onClickEqualBtn(input)">
-                <i class="fa-solid fa-equals"></i>
+                <img src="assets/icons/equal-operator.svg" alt="">
             </button>
         </div>
     </div>

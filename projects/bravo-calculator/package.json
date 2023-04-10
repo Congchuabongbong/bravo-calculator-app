@@ -9,7 +9,6 @@
 		"@grapecity/wijmo.styles": "*"
 	},
 	"dependencies": {
-		"tslib": "^2.0.0",
-		"font-awesome": "^4.7.0"
+		"tslib": "^2.0.0"
 	}
 }

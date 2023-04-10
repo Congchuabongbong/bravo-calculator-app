@@ -5,7 +5,9 @@
             <li class="option" *ngFor="let option of cmd.optionsCmd"
                 (click)="toggleItem(cmd,option); $event.stopPropagation();">
                 <div class="box-checked">
-                    <span *ngIf="option.value" class="checked"><i class="fa-solid fa-check"></i></span>
+                    <span *ngIf="option.value" class="checked">
+                        <img src="assets/icons/checked.svg" alt="">
+                    </span>
                 </div>
                 <span class="title-option">{{option.name}}</span>
             </li>

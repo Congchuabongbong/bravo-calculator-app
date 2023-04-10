@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { BravoCalculatorComponent } from './bravo-calculator.component';
-import { CalculatorInvoker } from './core/command/invoker.service';
+import { CalculatorInvoker } from './core/Command/invoker.service';
 import { FormsModule } from '@angular/forms';
 import { WjCoreModule } from '@grapecity/wijmo.angular2.core';
 import { WjInputModule } from '@grapecity/wijmo.angular2.input';

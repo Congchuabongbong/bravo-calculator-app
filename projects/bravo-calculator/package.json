@@ -1,9 +1,10 @@
 {
 	"name": "ng-bravo-calculator",
-	"version": "1.1.5",
+	"version": "1.1.9",
 	"peerDependencies": {
 		"@angular/common": "*",
 		"@angular/core": "*",
+		"@angular/router": "*",
 		"@grapecity/wijmo.all": "*",
 		"@grapecity/wijmo.angular2.all": "*",
 		"@grapecity/wijmo.styles": "*"

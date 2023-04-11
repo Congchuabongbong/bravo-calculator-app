@@ -2,10 +2,13 @@
 {
 	"extends": "./tsconfig.lib.json",
 	"compilerOptions": {
-		"declarationMap": false
+		"declarationMap": false,
+		"target": "ES5"
 	},
 	"angularCompilerOptions": {
 		"enableIvy": false,
+		"skipTemplateCodegen": false,
+		"strictMetadataEmit": false,
 		"compilationMode": "partial"
 	}
 }

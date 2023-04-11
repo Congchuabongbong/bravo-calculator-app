@@ -1,4 +1,4 @@
-<div class="calculator-container" tabindex="0">
+<div class="calculator-container" tabindex="0" #calculatorContainer>
     <div class="calculator-histories" #calculatorHistories
         [ngClass]="calculatorInvoker.calculationHistories && calculatorInvoker.calculationHistories.length > 0 ? 'active' : ''">
         <span class="m-symbol">M</span>
@@ -12,7 +12,7 @@
         <div class="calculator-screen_top">
             <span class="calculator-screen_top-left">
                 <img class="icon-menu-options" src="assets/icons/menu-options.svg" alt="" #btnMenu clickMenu
-                    [menuOption]="menu">
+                    [menuOption]="menu" [calculatorContainer]="calculatorContainer">
             </span>
 
             <div class="calculator-screen_top-right right">

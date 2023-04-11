@@ -1,6 +1,6 @@
 ::ng-deep .menu-multiple-select {
 	width: 255px;
-	height: 395px;
+	height: 310px;
 	background-color: #f0f0f0;
 	z-index: 9999;
 	box-shadow: 3px 3px 3px 0px #8e8e8e;
@@ -75,4 +75,13 @@
 	flex-grow: 1;
 	padding-left: 8px;
 	font-weight: 400;
+}
+
+::ng-deep.scroll-active {
+	-ms-overflow-style: none; /* for Internet Explorer, Edge */
+	scrollbar-width: none; /* for Firefox */
+	overflow-y: scroll;
+	&::-webkit-scrollbar {
+		display: none; /* for Chrome, Safari, and Opera */
+	}
 }

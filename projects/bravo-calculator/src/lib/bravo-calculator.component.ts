@@ -66,7 +66,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	get menuCommandOptions() {
 		if (!this._menuCommandOptions) {
 			let menuStorageStr = localStorage.getItem('CalculationMenuOptions');
-			this.menuCommandOptions = menuStorageStr ? JSON.parse(menuStorageStr) : defaultMenuOpts;
+			this.menuCommandOptions = menuStorageStr && JSON.parse(menuStorageStr).length > 0 ? JSON.parse(menuStorageStr) : defaultMenuOpts;
 		}
 		return this._menuCommandOptions;
 	}

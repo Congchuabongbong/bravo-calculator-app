@@ -34,7 +34,8 @@ export class ClickMenuSelectionDirective implements OnInit, AfterViewInit {
 		this._clearTimeout();
 		this._debounceTimeout = setTimeout(() => {
 			this._setPosition();
-		}, 300);
+			window.resizeTo(385, 360);
+		}, 200);
 	}
 
 	private _setPosition() {

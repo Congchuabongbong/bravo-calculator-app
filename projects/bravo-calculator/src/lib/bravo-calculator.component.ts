@@ -82,6 +82,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		});
 		this._isActiveCalculator = true;
 		this._senderStateChannel.postMessage(true);
+		window.resizeTo(385, 360);
 	}
 
 	ngAfterViewInit(): void {

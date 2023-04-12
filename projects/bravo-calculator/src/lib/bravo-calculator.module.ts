@@ -9,13 +9,11 @@ import { CalculatorInvoker } from './core/Command/invoker.service';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
 import { ClickMenuSelectionDirective } from './shared/directives/clickMenuMultipleSelect.directive';
 import { RandomColorExpression } from './shared/pipes/randomColoredExpression';
-const calculatorRoutes: Routes = [
-    { path: '', component: BravoCalculatorComponent }
-];
+const calculatorRoutes: Routes = [{ path: '', component: BravoCalculatorComponent }];
 @NgModule({
 	declarations: [BravoCalculatorComponent, ClickMenuSelectionDirective, MenuMultipleSelectComponent, RandomColorExpression],
-	imports: [CommonModule, FormsModule, WjCoreModule, WjInputModule,RouterModule.forChild(calculatorRoutes)],
+	imports: [CommonModule, FormsModule, WjCoreModule, WjInputModule, RouterModule.forChild(calculatorRoutes)],
 	exports: [BravoCalculatorComponent],
-	providers: [CalculatorInvoker,RouterModule],
+	providers: [CalculatorInvoker, RouterModule],
 })
 export class BravoCalculatorModule {}

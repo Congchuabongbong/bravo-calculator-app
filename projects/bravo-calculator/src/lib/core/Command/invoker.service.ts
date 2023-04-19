@@ -100,4 +100,8 @@ export class CalculatorInvoker {
 	set currentInputAction(inputAct: EInputAction) {
 		this._receiver.currentInputAction = inputAct;
 	}
+
+    get currentOperator() {
+        return this._receiver.currentOperator;
+    }
 }

@@ -77,7 +77,7 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		this._receiverDataChannel = new BravoBroadcastChannel(ECalculationChannel.DataCommunication);
 		this._senderStateChannel = new BravoBroadcastChannel(ECalculationChannel.StateCommunication);
 		//lắng nghe chéo
-		this._senderStateChannel.onDataChanged.addHandler((handler,event) => {
+		this._senderStateChannel.onDataChanged.addHandler((handler,eventArg) => {
 			if (this._isActiveCalculator) handler.postMessage(true);
 			else handler.postMessage(false);
 		});
@@ -88,11 +88,18 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	ngAfterViewInit(): void {
 		//subscribe chanel
-        this._receiverDataChannel.onDataChanged.addHandler((handler,event) => {
-            if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate) && event.data.length > 0) {
-				this.calculatorInvoker.currentInputAction = EInputAction.Signal;
-				this.calculatorInvoker.handleSignalAction(EOperatorString.Addition, event.data);
-				this._inputRef.nativeElement.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
+        this._receiverDataChannel.onDataChanged.addHandler((handler,eventArg) => {
+            if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate) ) {
+                if(eventArg.data && Array.isArray(eventArg.data) && eventArg.data.length > 0) {
+                    this.calculatorInvoker.currentInputAction = EInputAction.Signal;
+                    this.calculatorInvoker.handleSignalAction(EOperatorString.Addition, eventArg.data);
+                    this._inputRef.nativeElement.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
+                    this._handleActiveBtn(EEvenKey.Addition);
+                    this._cdr.detectChanges();
+                } else if(eventArg.data && typeof eventArg.data === 'boolean' && this.calculatorInvoker.currentOperator === EOperatorString.Equal) {
+                    this.onClearBtn(this._inputRef.nativeElement);
+                    this._cdr.detectChanges();
+                }
 			}
         })
 		this._initTooltip();

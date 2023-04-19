@@ -112,7 +112,11 @@ export class CalculatorReceiver {
 		if (this.isNextOperator) {
 			expressionPercent = this.result + EOperatorEVal.Division + '100' + EOperatorEVal.Multiplication + this.result;
 		} else {
-			expressionPercent = this.result + EOperatorEVal.Division + '100' + EOperatorEVal.Multiplication + operand;
+			if(this.currentOperator === EOperatorString.Addition || this.currentOperator === EOperatorString.Subtraction) {
+				expressionPercent = this.result + EOperatorEVal.Division + '100' + EOperatorEVal.Multiplication + operand;
+			}else if(this.currentOperator === EOperatorString.Division || this.currentOperator === EOperatorString.Multiplication) {
+				expressionPercent = operand + EOperatorEVal.Division + '100';
+			}
 		}
 		let result = this._executeExpression(expressionPercent, false) as string;
 		this._executeCommand({ ...request, operands: result });

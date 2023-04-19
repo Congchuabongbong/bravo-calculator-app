@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
 import { PopupPosition, Tooltip } from '@grapecity/wijmo';
 import { CalculatorInvoker } from './core/Command/invoker.service';
+import { BravoBroadcastChannel } from './core/Signal/bravo.broadcast.channel';
 import { ECalculationChannel, EEvenKey, EFormatSymbol, EInputAction, EKeyCmdOption, EOperatorString, EOptionCmd, OptionCmd, OptionsMenu } from './core/data-type';
 import { defaultMenuOpts } from './init-app/defaultMenuOpts';
 import { MenuMultipleSelectComponent } from './shared/components/menu-multiple-select/menu-multiple-select.component';
@@ -26,8 +27,8 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	public isResetDisplaySuggest = false;
 	//*private
 	private readonly _regexDigit = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
-	private _receiverDataChannel!: BroadcastChannel;
-	private _senderStateChannel!: BroadcastChannel;
+	private _receiverDataChannel!: BravoBroadcastChannel;
+	private _senderStateChannel!: BravoBroadcastChannel;
 	private _menuCommandOptions!: OptionsMenu[];
 	private _tooltipHistories!: Tooltip;
 	private _selectedOptionEscCmd!: OptionCmd[];
@@ -73,12 +74,12 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	//**Constructor here */
 	constructor(private _el: ElementRef, public calculatorInvoker: CalculatorInvoker, private renderer2: Renderer2, private _cdr: ChangeDetectorRef) {
-		this._receiverDataChannel = new BroadcastChannel(ECalculationChannel.DataCommunication);
-		this._senderStateChannel = new BroadcastChannel(ECalculationChannel.StateCommunication);
+		this._receiverDataChannel = new BravoBroadcastChannel(ECalculationChannel.DataCommunication);
+		this._senderStateChannel = new BravoBroadcastChannel(ECalculationChannel.StateCommunication);
 		//lắng nghe chéo
-		this._senderStateChannel.addEventListener('message', () => {
-			if (this._isActiveCalculator) this._senderStateChannel.postMessage(true);
-			else this._senderStateChannel.postMessage(false);
+		this._senderStateChannel.onDataChanged.addHandler((handler,event) => {
+			if (this._isActiveCalculator) handler.postMessage(true);
+			else handler.postMessage(false);
 		});
 		this._isActiveCalculator = true;
 		this._senderStateChannel.postMessage(true);
@@ -87,13 +88,13 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	ngAfterViewInit(): void {
 		//subscribe chanel
-		this._receiverDataChannel.addEventListener('message', (event: MessageEvent<string[]>) => {
-			if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate) && event.data.length > 0) {
+        this._receiverDataChannel.onDataChanged.addHandler((handler,event) => {
+            if (this._selectOptByKey(this._selectedOptionOtherCmd, EOptionCmd.AutoCalculate) && event.data.length > 0) {
 				this.calculatorInvoker.currentInputAction = EInputAction.Signal;
 				this.calculatorInvoker.handleSignalAction(EOperatorString.Addition, event.data);
 				this._inputRef.nativeElement.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
 			}
-		});
+        })
 		this._initTooltip();
 	}
 
@@ -108,8 +109,8 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	private _cleanEvents(): void {
-		this._receiverDataChannel.close();
-		this._senderStateChannel.close();
+		this._receiverDataChannel.dispose();
+		this._senderStateChannel.dispose();
 		this._tooltipHistories.dispose();
 		const elClone = this._el.nativeElement.cloneNode(true);
 		document.replaceChild(this._el.nativeElement, elClone);

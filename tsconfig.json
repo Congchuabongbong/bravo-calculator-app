@@ -4,7 +4,13 @@
 	"compilerOptions": {
 		"baseUrl": "./",
 		"paths": {
-			"bravo-calculator": ["dist/bravo-calculator"]
+      "bravo-calculator": [
+        "dist/bravo-calculator"
+      ],
+      "bravo-editor": [
+        "dist/bravo-editor/bravo-editor",
+        "dist/bravo-editor"
+      ]
 		},
 		"outDir": "./dist/out-tsc",
 		"forceConsistentCasingInFileNames": true,

@@ -224,6 +224,9 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
 		this.calculatorInvoker.endCalculationAction(unformattedNumber(value));
 		if (!this.calculatorInvoker.isDeleteResultDisplay) {
 			event.value = this._formatThousandsSeparated(this.calculatorInvoker.result);
+            //copy result when end calculate.
+            this._inputRef.nativeElement.select();
+			document.execCommand('copy');
 			this._resetSuggest();
 		}
 	}

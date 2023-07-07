@@ -12,7 +12,7 @@ export class AppComponent {
 	@HostListener('window:keydown', ['$event'])
 	public open(event: KeyboardEvent) {
 		if (event.key == 'Escape') {
-			window.open('http://localhost:62768/calculator', 'newWindow', 'width=700,height=700');
+			window.open('http://localhost:4200/calculator', 'newWindow', 'width=700,height=700');
 		}
 	}
 }

@@ -230,8 +230,9 @@ export class BravoCalculatorComponent implements OnInit, OnDestroy, AfterViewIni
             this._inputRef.nativeElement.value = _trimValue;
             this._inputRef.nativeElement.select();
             document.execCommand('copy');
-            setTimeout(() => {
-                this._inputRef.nativeElement.value = _previousVal;
+            const _timer = setTimeout(() => {
+                this._inputRef.nativeElement.value = _previousVal
+                clearTimeout(_timer);
             });
             this._resetSuggest();
         }
